@@ -7,14 +7,19 @@ export function applyFrenchDashes(text: string): string {
   return text.replace(DIALOGUE_DASH, `$1${EM_DASH} `).replace(INCISE_DASH, `$1${EM_DASH}`);
 }
 
+export type DashInputChange = { removeBefore: number; insert: string };
+
 /**
- * Called when `typed` is inserted right after `lineBefore`. Returns the text that must replace
- * the trailing hyphen and the typed character, or null when no substitution applies.
+ * Computes the edit to apply when `typed` is inserted after `lineBefore`. Only dashes adjacent to
+ * the insertion are converted, so a hyphen the author deliberately kept earlier stays untouched.
  */
-export function dashReplacementForInput(lineBefore: string, typed: string): string | null {
-  if (typed !== " " || !lineBefore.endsWith("-")) return null;
-  const beforeDash = lineBefore.slice(0, -1);
-  const isDialogue = beforeDash.trim() === "";
-  const isIncise = /[ \t]$/.test(beforeDash);
-  return isDialogue || isIncise ? `${EM_DASH} ` : null;
+export function dashInputChange(lineBefore: string, typed: string): DashInputChange | null {
+  const combined = lineBefore + typed;
+  const fixed = applyFrenchDashes(combined);
+  if (fixed === combined) return null;
+  let prefix = 0;
+  while (prefix < combined.length && combined[prefix] === fixed[prefix]) prefix++;
+  if (prefix < lineBefore.length - 1) return null;
+  const removeBefore = Math.max(0, lineBefore.length - prefix);
+  return { removeBefore, insert: fixed.slice(lineBefore.length - removeBefore) };
 }

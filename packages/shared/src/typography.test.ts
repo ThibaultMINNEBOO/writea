@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyFrenchDashes, dashReplacementForInput } from "./typography";
+import { applyFrenchDashes, dashInputChange } from "./typography";
 
 describe("applyFrenchDashes", () => {
   it("transforme un tiret de début de ligne en tiret de dialogue", () => {
@@ -32,20 +32,31 @@ describe("applyFrenchDashes", () => {
   });
 });
 
-describe("dashReplacementForInput", () => {
+describe("dashInputChange", () => {
   it("remplace le tiret tapé en début de ligne lorsqu'on ajoute une espace", () => {
-    expect(dashReplacementForInput("-", " ")).toBe("— ");
-    expect(dashReplacementForInput("  -", " ")).toBe("— ");
+    expect(dashInputChange("-", " ")).toEqual({ removeBefore: 1, insert: "— " });
+    expect(dashInputChange("  -", " ")).toEqual({ removeBefore: 1, insert: "— " });
   });
 
   it("remplace le tiret d'incise précédé d'une espace", () => {
-    expect(dashReplacementForInput("Il partit -", " ")).toBe("— ");
+    expect(dashInputChange("Il partit -", " ")).toEqual({ removeBefore: 1, insert: "— " });
+  });
+
+  it("gère une saisie de plusieurs caractères d'un coup", () => {
+    expect(dashInputChange("", "- Oui - enfin.")).toEqual({
+      removeBefore: 0,
+      insert: "— Oui — enfin.",
+    });
   });
 
   it("ignore les traits d'union et les autres saisies", () => {
-    expect(dashReplacementForInput("peut-", " ")).toBeNull();
-    expect(dashReplacementForInput("-", "a")).toBeNull();
-    expect(dashReplacementForInput("--", " ")).toBeNull();
-    expect(dashReplacementForInput("", " ")).toBeNull();
+    expect(dashInputChange("peut-", " ")).toBeNull();
+    expect(dashInputChange("-", "a")).toBeNull();
+    expect(dashInputChange("--", " ")).toBeNull();
+    expect(dashInputChange("", " ")).toBeNull();
+  });
+
+  it("ne revient pas sur un tiret laissé volontairement plus tôt dans la ligne", () => {
+    expect(dashInputChange("a - b", "c")).toBeNull();
   });
 });
