@@ -6,17 +6,14 @@ const id = () =>
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID());
 
-const createdAt = () =>
-  integer("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(unixepoch() * 1000)`)
-    .$defaultFn(() => new Date());
+const nowMs = sql`(cast(unixepoch('subsec') * 1000 as integer))`;
+
+const createdAt = () => integer("created_at", { mode: "timestamp_ms" }).notNull().default(nowMs);
 
 const updatedAt = () =>
   integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(unixepoch() * 1000)`)
-    .$defaultFn(() => new Date())
+    .default(nowMs)
     .$onUpdate(() => new Date());
 
 export const user = sqliteTable("user", {
