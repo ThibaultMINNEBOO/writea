@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import { UserMenu } from "@/features/auth/user-menu";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 export function AppHeader({ children }: { children?: ReactNode }) {
@@ -9,9 +10,10 @@ export function AppHeader({ children }: { children?: ReactNode }) {
         <Link to="/" className="font-serif text-xl font-semibold tracking-tight">
           Writea
         </Link>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1">
           {children}
           <ThemeToggle />
+          <UserMenu />
         </div>
       </div>
     </header>
