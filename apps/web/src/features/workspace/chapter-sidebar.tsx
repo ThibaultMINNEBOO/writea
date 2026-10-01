@@ -40,9 +40,10 @@ type ItemProps = {
   workId: string;
   canDelete: boolean;
   onDelete(id: string): void;
+  onNavigate?(): void;
 };
 
-function SortableChapter({ chapter, workId, canDelete, onDelete }: ItemProps) {
+function SortableChapter({ chapter, workId, canDelete, onDelete, onNavigate }: ItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: chapter.id,
   });
@@ -55,6 +56,7 @@ function SortableChapter({ chapter, workId, canDelete, onDelete }: ItemProps) {
     >
       <NavLink
         to={`/oeuvres/${workId}/chapitres/${chapter.id}`}
+        onClick={onNavigate}
         className={({ isActive }) =>
           cn(
             "flex flex-col gap-0.5 rounded-md py-2 pr-8 pl-7 text-sm transition-colors hover:bg-accent",
@@ -110,7 +112,14 @@ function SortableChapter({ chapter, workId, canDelete, onDelete }: ItemProps) {
   );
 }
 
-export function ChapterSidebar({ work, activeId }: { work: WorkDetail; activeId?: string }) {
+type Props = {
+  work: WorkDetail;
+  activeId?: string;
+  className?: string;
+  onNavigate?(): void;
+};
+
+export function ChapterSidebar({ work, activeId, className, onNavigate }: Props) {
   const navigate = useNavigate();
   const createChapter = useCreateChapter(work.id);
   const deleteChapter = useDeleteChapter(work.id);
@@ -130,7 +139,10 @@ export function ChapterSidebar({ work, activeId }: { work: WorkDetail; activeId?
 
   function handleCreate() {
     createChapter.mutate(undefined, {
-      onSuccess: (chapter) => navigate(`/oeuvres/${work.id}/chapitres/${chapter.id}`),
+      onSuccess: (chapter) => {
+        navigate(`/oeuvres/${work.id}/chapitres/${chapter.id}`);
+        onNavigate?.();
+      },
     });
   }
 
@@ -145,7 +157,12 @@ export function ChapterSidebar({ work, activeId }: { work: WorkDetail; activeId?
   }
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
+    <aside
+      className={cn(
+        "flex h-full w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div className="flex flex-col">
           <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
@@ -174,6 +191,7 @@ export function ChapterSidebar({ work, activeId }: { work: WorkDetail; activeId?
                   workId={work.id}
                   canDelete={work.chapters.length > 1}
                   onDelete={handleDelete}
+                  onNavigate={onNavigate}
                 />
               ))}
             </ol>

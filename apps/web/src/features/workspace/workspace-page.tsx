@@ -2,6 +2,7 @@ import { BookDownIcon, MinimizeIcon, PanelRightIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/ui/toggle";
 import { ChapterEditor, type ChapterEditorHandle } from "@/features/editor/chapter-editor";
@@ -10,6 +11,7 @@ import { ShareControls } from "@/features/review/share-controls";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
 import { VersionsPanel } from "@/features/versions/versions-panel";
 import { usePersistedState } from "@/hooks/use-persisted-state";
+import { useResponsivePanel } from "@/hooks/use-responsive-panel";
 import { epubUrl } from "@/lib/api";
 import { ChapterSidebar } from "./chapter-sidebar";
 import { useWork } from "./queries";
@@ -19,10 +21,10 @@ import { WorkspaceHeader } from "./workspace-header";
 export function WorkspacePage() {
   const { workId = "", chapterId } = useParams();
   const { data: work, error } = useWork(workId);
-  const [sidebarOpen, setSidebarOpen] = usePersistedState("writea:sidebar", true);
+  const sidebar = useResponsivePanel("writea:sidebar", "(min-width: 768px)");
   const [typewriter, setTypewriter] = usePersistedState("writea:typewriter", false);
   const [focusMode, setFocusMode] = useState(false);
-  const [toolsOpen, setToolsOpen] = usePersistedState("writea:tools", true);
+  const tools = useResponsivePanel("writea:tools", "(min-width: 1024px)");
   const [toolTab, setToolTab] = useState<ToolTab>("synonyms");
   const [lookup, setLookup] = useState({ term: "", id: 0 });
   const editorRef = useRef<ChapterEditorHandle>(null);
@@ -31,7 +33,7 @@ export function WorkspacePage() {
   function lookupWord(term: string) {
     setLookup((previous) => ({ term, id: previous.id + 1 }));
     setToolTab("synonyms");
-    setToolsOpen(true);
+    tools.setOpen(true);
   }
 
   useEffect(() => {
@@ -65,23 +67,23 @@ export function WorkspacePage() {
       {!focusMode && (
         <WorkspaceHeader
           title={work.title}
-          sidebarOpen={sidebarOpen}
+          sidebarOpen={sidebar.open}
           typewriter={typewriter}
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onToggleSidebar={() => sidebar.setOpen(!sidebar.open)}
           onToggleTypewriter={() => setTypewriter(!typewriter)}
           onEnterFocus={() => setFocusMode(true)}
           actions={
             <>
               <Button variant="ghost" size="sm" asChild>
-                <a href={epubUrl(work.id)} download>
+                <a href={epubUrl(work.id)} download aria-label="Exporter en EPUB">
                   <BookDownIcon data-icon="inline-start" />
-                  EPUB
+                  <span className="hidden sm:inline">EPUB</span>
                 </a>
               </Button>
               <Toggle
                 size="sm"
-                pressed={toolsOpen}
-                onPressedChange={setToolsOpen}
+                pressed={tools.open}
+                onPressedChange={tools.setOpen}
                 aria-label="Outils"
               >
                 <PanelRightIcon />
@@ -91,11 +93,24 @@ export function WorkspacePage() {
         />
       )}
       <div className="flex min-h-0 flex-1">
-        {sidebarOpen && !focusMode && (
-          <div className="hidden md:block">
-            <ChapterSidebar work={work} activeId={chapterId} />
-          </div>
-        )}
+        {!focusMode &&
+          (sidebar.docked ? (
+            sidebar.open && <ChapterSidebar work={work} activeId={chapterId} />
+          ) : (
+            <Sheet open={sidebar.open} onOpenChange={sidebar.setOpen}>
+              <SheetContent side="left" className="w-72 gap-0 p-0">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Chapitres</SheetTitle>
+                </SheetHeader>
+                <ChapterSidebar
+                  work={work}
+                  activeId={chapterId}
+                  className="w-full border-r-0 pt-8"
+                  onNavigate={() => sidebar.setOpen(false)}
+                />
+              </SheetContent>
+            </Sheet>
+          ))}
         <main className="relative min-w-0 flex-1">
           {focusMode && (
             <Button
@@ -122,8 +137,9 @@ export function WorkspacePage() {
         </main>
         {!focusMode && (
           <ToolsPanel
-            open={toolsOpen}
-            onOpenChange={setToolsOpen}
+            docked={tools.docked}
+            open={tools.open}
+            onOpenChange={tools.setOpen}
             tab={toolTab}
             onTabChange={setToolTab}
             tabs={[

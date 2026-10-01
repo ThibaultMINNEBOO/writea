@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMediaQuery } from "@/hooks/use-media-query";
 
 export type ToolTab = "synonyms" | "versions" | "reviews";
 
 type Props = {
+  docked: boolean;
   open: boolean;
   tab: ToolTab;
   onOpenChange(open: boolean): void;
@@ -16,7 +16,7 @@ type Props = {
 const isToolTab = (value: string): value is ToolTab =>
   value === "synonyms" || value === "versions" || value === "reviews";
 
-function PanelTabs({ tab, onTabChange, tabs }: Omit<Props, "open" | "onOpenChange">) {
+function PanelTabs({ tab, onTabChange, tabs }: Omit<Props, "docked" | "open" | "onOpenChange">) {
   return (
     <Tabs
       value={tab}
@@ -39,10 +39,8 @@ function PanelTabs({ tab, onTabChange, tabs }: Omit<Props, "open" | "onOpenChang
   );
 }
 
-export function ToolsPanel({ open, onOpenChange, ...tabsProps }: Props) {
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
-
-  if (isDesktop) {
+export function ToolsPanel({ docked, open, onOpenChange, ...tabsProps }: Props) {
+  if (docked) {
     return open ? (
       <aside className="flex w-80 shrink-0 flex-col border-l bg-sidebar p-4 text-sidebar-foreground">
         <PanelTabs {...tabsProps} />
@@ -52,7 +50,7 @@ export function ToolsPanel({ open, onOpenChange, ...tabsProps }: Props) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex flex-col gap-0 p-4">
+      <SheetContent side="right" className="flex flex-col gap-0 p-4 pt-12">
         <SheetHeader className="sr-only">
           <SheetTitle>Outils</SheetTitle>
         </SheetHeader>
