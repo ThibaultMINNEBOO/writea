@@ -20,7 +20,7 @@ export function UserMenu() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useCurrentUser();
-  const { canInstall, install } = useInstallPrompt();
+  const { canPrompt, isInstalled, install } = useInstallPrompt();
   if (!user) return null;
 
   async function signOut() {
@@ -45,7 +45,7 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {canInstall && (
+          {canPrompt && !isInstalled && (
             <DropdownMenuItem onSelect={() => void install()}>
               <MonitorDownIcon />
               Installer l'application

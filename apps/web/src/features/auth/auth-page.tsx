@@ -13,6 +13,7 @@ import {
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { InstallAppButton } from "@/features/pwa/install-app-button";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 import { authClient, translateAuthError } from "@/lib/auth-client";
 import { AuthShowcase } from "./auth-showcase";
@@ -80,7 +81,8 @@ export function AuthPage({ mode }: { mode: Mode }) {
     <div className="grid min-h-svh lg:grid-cols-2">
       <AuthShowcase />
       <div className="relative flex items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <InstallAppButton />
           <ThemeToggle />
         </div>
         <div className="flex w-full max-w-sm animate-in flex-col gap-6 duration-500 fade-in slide-in-from-bottom-4">

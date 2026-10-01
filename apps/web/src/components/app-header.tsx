@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Logo } from "@/components/logo";
 import { UserMenu } from "@/features/auth/user-menu";
 import { OfflineBadge } from "@/features/offline/offline-badge";
+import { InstallAppButton } from "@/features/pwa/install-app-button";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 export function AppHeader({ children }: { children?: ReactNode }) {
@@ -12,6 +13,7 @@ export function AppHeader({ children }: { children?: ReactNode }) {
         <div className="ml-auto flex items-center gap-1">
           <OfflineBadge />
           {children}
+          <InstallAppButton className="mr-1" />
           <ThemeToggle />
           <UserMenu />
         </div>
