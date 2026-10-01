@@ -5,13 +5,17 @@ import { createAuth } from "./auth";
 import { createDb } from "./db/client";
 import type { AppEnv } from "./env";
 import { withContext } from "./middleware/context";
+import { chaptersRoutes } from "./routes/chapters";
+import { worksRoutes } from "./routes/works";
 
 const app = new Hono<AppEnv>()
   .basePath("/api")
   .use("*", (c, next) => cors({ origin: c.env.APP_URL, credentials: true })(c, next))
   .on(["GET", "POST"], "/auth/*", (c) => createAuth(c.env, createDb(c.env.DB)).handler(c.req.raw))
   .use("*", withContext)
-  .get("/health", (c) => c.json({ ok: true }));
+  .get("/health", (c) => c.json({ ok: true }))
+  .route("/works", worksRoutes)
+  .route("/chapters", chaptersRoutes);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) return c.json({ error: err.message }, err.status);
