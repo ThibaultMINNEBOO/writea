@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyFrenchDashes, dashInputChange } from "./typography";
+import {
+  applyFrenchDashes,
+  applyFrenchQuotes,
+  applyFrenchTypography,
+  NBSP,
+  typographyInputChange,
+} from "./typography";
 
 describe("applyFrenchDashes", () => {
   it("transforme un tiret de début de ligne en tiret de dialogue", () => {
@@ -32,31 +38,80 @@ describe("applyFrenchDashes", () => {
   });
 });
 
-describe("dashInputChange", () => {
+describe("applyFrenchQuotes", () => {
+  it("remplace les guillemets droits par des guillemets français avec espaces insécables", () => {
+    expect(applyFrenchQuotes('Il dit : "Viens."')).toBe(`Il dit : «${NBSP}Viens.${NBSP}»`);
+  });
+
+  it("absorbe les espaces déjà présentes à l'intérieur des guillemets", () => {
+    expect(applyFrenchQuotes('" Oui "')).toBe(`«${NBSP}Oui${NBSP}»`);
+  });
+
+  it("convertit aussi les guillemets typographiques anglais", () => {
+    expect(applyFrenchQuotes("“Non”, souffla-t-elle.")).toBe(
+      `«${NBSP}Non${NBSP}», souffla-t-elle.`,
+    );
+  });
+
+  it("ouvre après une parenthèse ou un tiret et ferme après un mot", () => {
+    expect(applyFrenchQuotes('("mer")')).toBe(`(«${NBSP}mer${NBSP}»)`);
+    expect(applyFrenchQuotes('—"Assez"')).toBe(`—«${NBSP}Assez${NBSP}»`);
+  });
+
+  it("tient compte du texte qui précède", () => {
+    expect(applyFrenchQuotes('"', "Il murmura ")).toBe(`«${NBSP}`);
+    expect(applyFrenchQuotes('"', `«${NBSP}Adieu`)).toBe(`${NBSP}»`);
+  });
+});
+
+describe("applyFrenchTypography", () => {
+  it("combine tirets et guillemets", () => {
+    expect(applyFrenchTypography('- "Partez" - dit-il.')).toBe(
+      `— «${NBSP}Partez${NBSP}» — dit-il.`,
+    );
+  });
+});
+
+describe("typographyInputChange", () => {
   it("remplace le tiret tapé en début de ligne lorsqu'on ajoute une espace", () => {
-    expect(dashInputChange("-", " ")).toEqual({ removeBefore: 1, insert: "— " });
-    expect(dashInputChange("  -", " ")).toEqual({ removeBefore: 1, insert: "— " });
+    expect(typographyInputChange("-", " ")).toEqual({ removeBefore: 1, insert: "— " });
+    expect(typographyInputChange("  -", " ")).toEqual({ removeBefore: 1, insert: "— " });
   });
 
   it("remplace le tiret d'incise précédé d'une espace", () => {
-    expect(dashInputChange("Il partit -", " ")).toEqual({ removeBefore: 1, insert: "— " });
+    expect(typographyInputChange("Il partit -", " ")).toEqual({ removeBefore: 1, insert: "— " });
+  });
+
+  it("ouvre puis ferme des guillemets à la frappe", () => {
+    expect(typographyInputChange("Il dit ", '"')).toEqual({ removeBefore: 0, insert: `«${NBSP}` });
+    expect(typographyInputChange(`Il dit «${NBSP}oui`, '"')).toEqual({
+      removeBefore: 0,
+      insert: `${NBSP}»`,
+    });
+  });
+
+  it("retire l'espace tapée avant un guillemet fermant", () => {
+    expect(typographyInputChange(`«${NBSP}oui `, "»")).toEqual({
+      removeBefore: 1,
+      insert: `${NBSP}»`,
+    });
   });
 
   it("gère une saisie de plusieurs caractères d'un coup", () => {
-    expect(dashInputChange("", "- Oui - enfin.")).toEqual({
+    expect(typographyInputChange("", '- Oui - "enfin".')).toEqual({
       removeBefore: 0,
-      insert: "— Oui — enfin.",
+      insert: `— Oui — «${NBSP}enfin${NBSP}».`,
     });
   });
 
   it("ignore les traits d'union et les autres saisies", () => {
-    expect(dashInputChange("peut-", " ")).toBeNull();
-    expect(dashInputChange("-", "a")).toBeNull();
-    expect(dashInputChange("--", " ")).toBeNull();
-    expect(dashInputChange("", " ")).toBeNull();
+    expect(typographyInputChange("peut-", " ")).toBeNull();
+    expect(typographyInputChange("-", "a")).toBeNull();
+    expect(typographyInputChange("--", " ")).toBeNull();
+    expect(typographyInputChange("", " ")).toBeNull();
   });
 
   it("ne revient pas sur un tiret laissé volontairement plus tôt dans la ligne", () => {
-    expect(dashInputChange("a - b", "c")).toBeNull();
+    expect(typographyInputChange("a - b", "c")).toBeNull();
   });
 });

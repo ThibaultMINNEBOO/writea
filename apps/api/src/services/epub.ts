@@ -1,5 +1,5 @@
 import { renderMarkdown } from "@writea/shared/markdown";
-import { applyFrenchDashes } from "@writea/shared/typography";
+import { applyFrenchTypography } from "@writea/shared/typography";
 import { strToU8, type Zippable, zipSync } from "fflate";
 
 export type EpubBook = {
@@ -70,7 +70,7 @@ function titlePage(book: EpubBook) {
 }
 
 function chapterPage(chapter: EpubBook["chapters"][number]) {
-  const body = renderMarkdown(applyFrenchDashes(chapter.content), { xhtml: true });
+  const body = renderMarkdown(applyFrenchTypography(chapter.content), { xhtml: true });
   return xhtmlPage(
     chapter.title,
     `<section epub:type="chapter">

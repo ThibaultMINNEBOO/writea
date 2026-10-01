@@ -10,7 +10,7 @@ const book = buildEpub({
   synopsis: null,
   modifiedAt: new Date("2026-10-01T10:00:00.000Z"),
   chapters: [
-    { title: "Le départ", content: "- Tu pars ?\n\nIl partit - enfin." },
+    { title: "Le départ", content: '- Tu pars ?\n\nIl partit - enfin. "Adieu".' },
     { title: "La <traversée>", content: "Le *large*." },
   ],
 });
@@ -35,7 +35,7 @@ describe("buildEpub", () => {
     const files = unzipSync(book);
     const first = strFromU8(files["OEBPS/chapitre-001.xhtml"] ?? new Uint8Array());
     expect(first).toContain("<p>— Tu pars ?</p>");
-    expect(first).toContain("Il partit — enfin.");
+    expect(first).toContain("Il partit — enfin. «\u00a0Adieu\u00a0».");
     const second = strFromU8(files["OEBPS/chapitre-002.xhtml"] ?? new Uint8Array());
     expect(second).toContain("<h1>La &lt;traversée&gt;</h1>");
     expect(Object.keys(files)).toContain("OEBPS/nav.xhtml");

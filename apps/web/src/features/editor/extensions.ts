@@ -3,12 +3,12 @@ import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { EditorSelection, EditorState, type Extension } from "@codemirror/state";
 import { EditorView, type KeyBinding } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
-import { applyFrenchDashes, dashInputChange } from "@writea/shared/typography";
+import { applyFrenchTypography, typographyInputChange } from "@writea/shared/typography";
 
-export const frenchDashes: Extension = [
+export const frenchTypography: Extension = [
   EditorView.inputHandler.of((view, from, to, text) => {
     const line = view.state.doc.lineAt(from);
-    const change = dashInputChange(line.text.slice(0, from - line.from), text);
+    const change = typographyInputChange(line.text.slice(0, from - line.from), text);
     if (!change) return false;
     const start = from - change.removeBefore;
     view.dispatch({
@@ -18,7 +18,7 @@ export const frenchDashes: Extension = [
     });
     return true;
   }),
-  EditorView.clipboardInputFilter.of((text) => applyFrenchDashes(text)),
+  EditorView.clipboardInputFilter.of((text) => applyFrenchTypography(text)),
 ];
 
 export const typewriterScrolling: Extension = EditorState.transactionExtender.of((tr) =>
@@ -96,5 +96,5 @@ export const writingSetup: Extension = [
   theme,
   EditorView.lineWrapping,
   EditorView.contentAttributes.of({ spellcheck: "true", lang: "fr", autocorrect: "on" }),
-  frenchDashes,
+  frenchTypography,
 ];
