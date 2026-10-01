@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserMenu } from "@/features/auth/user-menu";
+import { OfflineBadge } from "@/features/offline/offline-badge";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 type Props = {
@@ -56,6 +57,7 @@ export function WorkspaceHeader({
       </WithTooltip>
       <h1 className="truncate px-2 font-heading text-base font-semibold">{title}</h1>
       <div className="ml-auto flex items-center gap-1">
+        <OfflineBadge />
         {actions}
         <WithTooltip label="Défilement machine à écrire">
           <Toggle

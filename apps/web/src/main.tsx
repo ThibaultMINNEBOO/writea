@@ -4,9 +4,11 @@ import { RouterProvider } from "react-router";
 import { Providers } from "@/app/providers";
 import { router } from "@/app/router";
 import { listenForInstallPrompt } from "@/features/pwa/install-prompt";
+import { monitorConnectivity } from "@/lib/connectivity";
 import "./index.css";
 
 listenForInstallPrompt();
+monitorConnectivity();
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Élément #root introuvable");

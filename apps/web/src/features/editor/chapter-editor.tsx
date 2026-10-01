@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
 import {
   chapterKeys,
   saveChapter,
@@ -35,7 +36,15 @@ type Props = {
 };
 
 export function ChapterEditor({ chapterId, ...props }: Props) {
-  const { data: chapter } = useChapter(chapterId);
+  const { data: chapter, fetchStatus } = useChapter(chapterId);
+
+  if (!chapter && fetchStatus === "paused") {
+    return (
+      <div className="mx-auto w-full max-w-[68ch] px-6 py-12">
+        <OfflineUnavailable title="Chapitre indisponible hors ligne" />
+      </div>
+    );
+  }
 
   if (!chapter) {
     return (

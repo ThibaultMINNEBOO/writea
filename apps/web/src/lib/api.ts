@@ -1,7 +1,11 @@
 import type { AppType } from "@writea/api";
 import { hc, type InferResponseType } from "hono/client";
+import { trackedFetch } from "./connectivity";
 
-export const api = hc<AppType>(window.location.origin, { init: { credentials: "include" } }).api;
+export const api = hc<AppType>(window.location.origin, {
+  fetch: trackedFetch,
+  init: { credentials: "include" },
+}).api;
 
 export class ApiError extends Error {
   constructor(

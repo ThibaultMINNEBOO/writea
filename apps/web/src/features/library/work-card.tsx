@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { epubUrl, type WorkSummary } from "@/lib/api";
 import { coverClass, initials } from "@/lib/cover";
 import { formatNumber, formatRelative } from "@/lib/format";
@@ -34,6 +35,7 @@ import { useDeleteWork } from "./queries";
 
 export function WorkCard({ work, index }: { work: WorkSummary; index: number }) {
   const deleteWork = useDeleteWork();
+  const online = useOnlineStatus();
 
   return (
     <article
@@ -87,14 +89,14 @@ export function WorkCard({ work, index }: { work: WorkSummary; index: number }) 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild disabled={!online}>
                   <a href={epubUrl(work.id)} download>
                     <BookDownIcon />
                     Exporter en EPUB
                   </a>
                 </DropdownMenuItem>
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem variant="destructive">
+                  <DropdownMenuItem variant="destructive" disabled={!online}>
                     <Trash2Icon />
                     Supprimer
                   </DropdownMenuItem>

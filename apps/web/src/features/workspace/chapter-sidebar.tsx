@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import type { ChapterSummary, WorkDetail } from "@/lib/api";
 import { formatNumber, pluralize } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -138,6 +139,7 @@ type Props = {
 export function ChapterSidebar({ work, activeId, className, onNavigate }: Props) {
   const navigate = useNavigate();
   const createChapter = useCreateChapter(work.id);
+  const online = useOnlineStatus();
   const deleteChapter = useDeleteChapter(work.id);
   const reorder = useReorderChapters(work.id);
   const sensors = useSensors(
@@ -191,7 +193,7 @@ export function ChapterSidebar({ work, activeId, className, onNavigate }: Props)
           size="icon-sm"
           aria-label="Nouveau chapitre"
           onClick={handleCreate}
-          disabled={createChapter.isPending}
+          disabled={createChapter.isPending || !online}
         >
           <PlusIcon />
         </Button>
@@ -206,7 +208,7 @@ export function ChapterSidebar({ work, activeId, className, onNavigate }: Props)
                   chapter={chapter}
                   number={index + 1}
                   workId={work.id}
-                  canDelete={work.chapters.length > 1}
+                  canDelete={online && work.chapters.length > 1}
                   onDelete={handleDelete}
                   onNavigate={onNavigate}
                 />

@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { coverClass, initials } from "@/lib/cover";
 import { formatRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -26,7 +28,8 @@ type Props = {
 };
 
 export function ReviewsPanel({ chapterId, activeId, onReveal }: Props) {
-  const { data: comments, isPending } = useChapterComments(chapterId);
+  const { data: comments, isPending, fetchStatus } = useChapterComments(chapterId);
+  const online = useOnlineStatus();
   const resolve = useResolveComment(chapterId);
   const [filter, setFilter] = useState<Filter>("open");
   const visible = comments?.filter((comment) => filter === "all" || !comment.resolvedAt) ?? [];
@@ -51,7 +54,10 @@ export function ReviewsPanel({ chapterId, activeId, onReveal }: Props) {
         <ToggleGroupItem value="all">Tous</ToggleGroupItem>
       </ToggleGroup>
 
-      {isPending && <Skeleton className="h-24 w-full" />}
+      {!comments && fetchStatus === "paused" && (
+        <OfflineUnavailable title="Relectures indisponibles hors ligne" />
+      )}
+      {isPending && fetchStatus !== "paused" && <Skeleton className="h-24 w-full" />}
 
       {comments && visible.length === 0 && (
         <Empty className="border">
@@ -123,6 +129,7 @@ export function ReviewsPanel({ chapterId, activeId, onReveal }: Props) {
               <Button
                 variant="ghost"
                 size="xs"
+                disabled={!online}
                 onClick={() => resolve.mutate({ id: comment.id, resolved: !comment.resolvedAt })}
               >
                 {comment.resolvedAt ? (

@@ -36,6 +36,8 @@ import {
 } from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { formatDate, pluralize } from "@/lib/format";
 import { useCreateVersion, useDeleteVersion, useRestoreVersion, useVersions } from "./queries";
 
@@ -54,7 +56,8 @@ export function VersionsPanel({
   onRestored,
   renderShare,
 }: Props) {
-  const { data: versions, isPending } = useVersions(chapterId);
+  const { data: versions, isPending, fetchStatus } = useVersions(chapterId);
+  const online = useOnlineStatus();
   const createVersion = useCreateVersion(chapterId);
   const restoreVersion = useRestoreVersion(chapterId, workId);
   const deleteVersion = useDeleteVersion(chapterId);
@@ -101,7 +104,7 @@ export function VersionsPanel({
               maxLength={120}
             />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton type="submit" disabled={createVersion.isPending}>
+              <InputGroupButton type="submit" disabled={createVersion.isPending || !online}>
                 {createVersion.isPending ? <Spinner /> : "Figer"}
               </InputGroupButton>
             </InputGroupAddon>
@@ -112,7 +115,10 @@ export function VersionsPanel({
         </Field>
       </form>
 
-      {isPending && <Skeleton className="h-20 w-full" />}
+      {!versions && fetchStatus === "paused" && (
+        <OfflineUnavailable title="Versions indisponibles hors ligne" />
+      )}
+      {isPending && fetchStatus !== "paused" && <Skeleton className="h-20 w-full" />}
 
       {versions?.length === 0 && (
         <Empty className="border">
@@ -147,12 +153,13 @@ export function VersionsPanel({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={() => setToRestore(version)}>
+                      <DropdownMenuItem disabled={!online} onSelect={() => setToRestore(version)}>
                         <RotateCcwIcon />
                         Restaurer
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         variant="destructive"
+                        disabled={!online}
                         onSelect={() => deleteVersion.mutate(version.id)}
                       >
                         <Trash2Icon />

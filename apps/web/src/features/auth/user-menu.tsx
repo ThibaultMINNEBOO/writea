@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MonitorDownIcon, UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -12,15 +13,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useInstallPrompt } from "@/features/pwa/install-prompt";
 import { authClient } from "@/lib/auth-client";
+import { queryPersister } from "@/lib/query-persistence";
+import { forgetCachedUser, useCurrentUser } from "./use-current-user";
 
 export function UserMenu() {
   const navigate = useNavigate();
-  const { data } = authClient.useSession();
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
   const { canInstall, install } = useInstallPrompt();
-  if (!data) return null;
+  if (!user) return null;
 
   async function signOut() {
     await authClient.signOut();
+    forgetCachedUser();
+    queryClient.clear();
+    await queryPersister.removeClient();
     navigate("/connexion", { replace: true });
   }
 
@@ -33,10 +40,8 @@ export function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex flex-col">
-          <span>{data.user.name}</span>
-          <span className="truncate text-xs font-normal text-muted-foreground">
-            {data.user.email}
-          </span>
+          <span>{user.name}</span>
+          <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

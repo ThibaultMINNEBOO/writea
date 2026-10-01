@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
 import { api, unwrap } from "@/lib/api";
 
 type Props = {
@@ -16,7 +17,7 @@ export function SynonymsPanel({ initialTerm, onPick }: Props) {
   const [input, setInput] = useState(initialTerm);
   const [query, setQuery] = useState(initialTerm.trim());
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, fetchStatus } = useQuery({
     queryKey: ["thesaurus", query.toLocaleLowerCase("fr")],
     queryFn: () => unwrap(api.thesaurus.$get({ query: { q: query } })),
     enabled: query.length > 0,
@@ -49,6 +50,13 @@ export function SynonymsPanel({ initialTerm, onPick }: Props) {
           Placez le curseur sur un mot puis appuyez sur <kbd className="font-mono">⌘⇧S</kbd>, ou
           saisissez un terme ci-dessus.
         </p>
+      )}
+
+      {query && !data && fetchStatus === "paused" && (
+        <OfflineUnavailable
+          title="Synonymes indisponibles hors ligne"
+          description="Seuls les mots déjà recherchés sur cet appareil sont disponibles sans réseau."
+        />
       )}
 
       {query && isFetching && !data && (

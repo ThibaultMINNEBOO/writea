@@ -14,11 +14,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/ui/toggle";
 import { ChapterEditor, type ChapterEditorHandle } from "@/features/editor/chapter-editor";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
 import { useChapterComments } from "@/features/review/queries";
 import { ReviewsPanel } from "@/features/review/reviews-panel";
 import { ShareControls } from "@/features/review/share-controls";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
 import { VersionsPanel } from "@/features/versions/versions-panel";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { useResponsivePanel } from "@/hooks/use-responsive-panel";
 import { epubUrl } from "@/lib/api";
@@ -29,7 +31,7 @@ import { WorkspaceHeader } from "./workspace-header";
 
 export function WorkspacePage() {
   const { workId = "", chapterId } = useParams();
-  const { data: work, error } = useWork(workId);
+  const { data: work, error, fetchStatus } = useWork(workId);
   const sidebar = useResponsivePanel("writea:sidebar", "(min-width: 768px)");
   const [typewriter, setTypewriter] = usePersistedState("writea:typewriter", false);
   const [focusMode, setFocusMode] = useState(false);
@@ -37,6 +39,7 @@ export function WorkspacePage() {
   const [toolTab, setToolTab] = useState<ToolTab>("synonyms");
   const [lookup, setLookup] = useState({ term: "", id: 0 });
   const editorRef = useRef<ChapterEditorHandle>(null);
+  const online = useOnlineStatus();
   const { data: comments } = useChapterComments(chapterId ?? "");
   const openComments = comments?.filter((comment) => !comment.resolvedAt).length ?? 0;
   const quotedComments = useMemo(
@@ -85,6 +88,13 @@ export function WorkspacePage() {
   }, []);
 
   if (error) return <Navigate to="/" replace />;
+  if (!work && fetchStatus === "paused") {
+    return (
+      <div className="grid h-svh place-items-center p-4">
+        <OfflineUnavailable title="Œuvre indisponible hors ligne" />
+      </div>
+    );
+  }
   if (!work) {
     return (
       <div className="grid h-svh place-items-center">
@@ -110,12 +120,24 @@ export function WorkspacePage() {
           onEnterFocus={() => setFocusMode(true)}
           actions={
             <>
-              <Button variant="ghost" size="sm" asChild>
-                <a href={epubUrl(work.id)} download aria-label="Exporter en EPUB">
+              {online ? (
+                <Button variant="ghost" size="sm" asChild>
+                  <a href={epubUrl(work.id)} download aria-label="Exporter en EPUB">
+                    <BookDownIcon data-icon="inline-start" />
+                    <span className="hidden sm:inline">EPUB</span>
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  aria-label="Export EPUB indisponible hors ligne"
+                >
                   <BookDownIcon data-icon="inline-start" />
                   <span className="hidden sm:inline">EPUB</span>
-                </a>
-              </Button>
+                </Button>
+              )}
               <Toggle
                 size="sm"
                 pressed={tools.open}

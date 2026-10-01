@@ -9,7 +9,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { authClient } from "@/lib/auth-client";
+import { useCurrentUser } from "@/features/auth/use-current-user";
+import { OfflineUnavailable } from "@/features/offline/offline-unavailable";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { CreateWorkDialog } from "./create-work-dialog";
@@ -37,9 +38,10 @@ function Stat({ icon: Icon, label, value, tone }: StatProps) {
 const greeting = () => (new Date().getHours() < 18 ? "Bonjour" : "Bonsoir");
 
 export function LibraryPage() {
-  const { data: works, isPending } = useWorks();
-  const { data: session } = authClient.useSession();
-  const firstName = session?.user.name.split(" ")[0] ?? "";
+  const { data: works, isPending, fetchStatus } = useWorks();
+  const unavailableOffline = !works && fetchStatus === "paused";
+  const { user } = useCurrentUser();
+  const firstName = user?.name.split(" ")[0] ?? "";
   const totals = (works ?? []).reduce(
     (sum, work) => ({
       words: sum.words + work.wordCount,
@@ -93,7 +95,9 @@ export function LibraryPage() {
           </section>
         )}
 
-        {isPending && (
+        {unavailableOffline && <OfflineUnavailable title="Bibliothèque indisponible hors ligne" />}
+
+        {isPending && !unavailableOffline && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Skeleton className="h-40" />
             <Skeleton className="h-40" />

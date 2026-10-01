@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Logo } from "@/components/logo";
 import { UserMenu } from "@/features/auth/user-menu";
+import { OfflineBadge } from "@/features/offline/offline-badge";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 export function AppHeader({ children }: { children?: ReactNode }) {
@@ -9,6 +10,7 @@ export function AppHeader({ children }: { children?: ReactNode }) {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
         <Logo />
         <div className="ml-auto flex items-center gap-1">
+          <OfflineBadge />
           {children}
           <ThemeToggle />
           <UserMenu />

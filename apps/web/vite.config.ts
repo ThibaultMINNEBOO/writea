@@ -57,5 +57,5 @@ export default defineConfig({
     chunkSizeWarningLimit: 700,
   },
   server: { port: 5173, proxy: apiProxy },
-  preview: { port: 4173, proxy: apiProxy },
+  preview: { port: 5173, proxy: apiProxy },
 });

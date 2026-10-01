@@ -1,9 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Spinner } from "@/components/ui/spinner";
-import { authClient } from "@/lib/auth-client";
+import { useCurrentUser } from "./use-current-user";
 
 export function RequireAuth() {
-  const { data, isPending } = authClient.useSession();
+  const { user, isPending } = useCurrentUser();
   const location = useLocation();
 
   if (isPending) {
@@ -14,7 +14,7 @@ export function RequireAuth() {
     );
   }
 
-  if (!data) return <Navigate to="/connexion" replace state={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/connexion" replace state={{ from: location.pathname }} />;
 
   return <Outlet />;
 }

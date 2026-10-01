@@ -16,7 +16,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { authClient } from "@/lib/auth-client";
+import { useCurrentUser } from "@/features/auth/use-current-user";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useCreateWork } from "./queries";
 
 const read = (form: FormData, name: string) => String(form.get(name) ?? "");
@@ -24,8 +25,9 @@ const read = (form: FormData, name: string) => String(form.get(name) ?? "");
 export function CreateWorkDialog() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { data: session } = authClient.useSession();
+  const { user } = useCurrentUser();
   const createWork = useCreateWork();
+  const online = useOnlineStatus();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,7 +51,7 @@ export function CreateWorkDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={!online}>
           <PlusIcon data-icon="inline-start" />
           Nouvelle œuvre
         </Button>
@@ -74,7 +76,7 @@ export function CreateWorkDialog() {
             </Field>
             <Field>
               <FieldLabel htmlFor="author">Auteur</FieldLabel>
-              <Input id="author" name="author" defaultValue={session?.user.name} required />
+              <Input id="author" name="author" defaultValue={user?.name} required />
             </Field>
             <Field>
               <FieldLabel htmlFor="synopsis">Synopsis</FieldLabel>

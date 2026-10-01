@@ -10,14 +10,12 @@
       "port": 5173
     },
     {
-      "name": "writea-pwa-preview",
+      "name": "writea-preview",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [
-        "--filter",
-        "@writea/web",
         "preview"
       ],
-      "port": 4173
+      "port": 5173
     }
   ]
 }

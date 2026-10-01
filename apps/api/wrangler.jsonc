@@ -1,23 +1,21 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "writea-api",
-	"main": "src/index.ts",
-	"compatibility_date": "2026-08-22",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"observability": {
-		"enabled": true
-	},
-	"vars": {
-		"APP_URL": "https://writea-app.vercel.app"
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "writea",
-			"database_id": "39ff0886-286b-4a8c-9a28-86a5b50138f8",
-			"migrations_dir": "drizzle"
-		}
-	]
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "writea-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "APP_URL": "https://writea-app.vercel.app"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "writea",
+      "database_id": "39ff0886-286b-4a8c-9a28-86a5b50138f8",
+      "migrations_dir": "drizzle"
+    }
+  ]
 }

@@ -2,6 +2,7 @@ import { CopyIcon, Link2OffIcon, Share2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { reviewUrl, useRevokeShare, useShareVersion } from "./queries";
 
 async function copyLink(token: string) {
@@ -17,6 +18,7 @@ type Props = { chapterId: string; version: { id: string; shareToken: string | nu
 
 export function ShareControls({ chapterId, version }: Props) {
   const share = useShareVersion(chapterId);
+  const online = useOnlineStatus();
   const revoke = useRevokeShare(chapterId);
 
   if (!version.shareToken) {
@@ -25,7 +27,7 @@ export function ShareControls({ chapterId, version }: Props) {
         variant="outline"
         size="xs"
         className="self-start"
-        disabled={share.isPending}
+        disabled={share.isPending || !online}
         onClick={() => share.mutate(version.id, { onSuccess: ({ token }) => copyLink(token) })}
       >
         {share.isPending ? (
@@ -48,7 +50,7 @@ export function ShareControls({ chapterId, version }: Props) {
       <Button
         variant="ghost"
         size="xs"
-        disabled={revoke.isPending}
+        disabled={revoke.isPending || !online}
         onClick={() =>
           revoke.mutate(version.id, { onSuccess: () => toast.success("Partage désactivé") })
         }
