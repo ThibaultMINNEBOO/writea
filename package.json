@@ -1,0 +1,19 @@
+{
+  "name": "writea",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,cyan \"pnpm --filter @writea/api dev\" \"pnpm --filter @writea/web dev\"",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "biome check .",
+    "format": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "concurrently": "^10.0.5",
+    "typescript": "~6.0.3"
+  }
+}
