@@ -1,3 +1,4 @@
+import { contentFingerprint } from "@writea/shared/text";
 import { describe, expect, it } from "vitest";
 import { body, call, type Session, signUp } from "./client";
 
@@ -99,6 +100,34 @@ describe("API Writea", () => {
 
     await call(`/api/versions/${version.id}/share`, { method: "DELETE", session });
     expect((await call(`/api/review/${token}`)).status).toBe(404);
+  });
+
+  it("sauvegarde le texte du serveur avant d'appliquer une synchronisation concurrente", async () => {
+    const session = await signUp("autrice-5@exemple.fr");
+    const work = await createWork(session);
+    const chapterId = work.chapters[0]?.id ?? "";
+    const patch = (json: unknown) =>
+      call(`/api/chapters/${chapterId}`, { method: "PATCH", session, json });
+
+    await patch({ content: "Version commune." });
+    const base = contentFingerprint("Version commune.");
+
+    const fresh = await body<{ conflictSaved: boolean }>(
+      await patch({ content: "Suite écrite en ligne.", baseFingerprint: base }),
+    );
+    expect(fresh.conflictSaved).toBe(false);
+
+    const offline = await body<{ content: string; conflictSaved: boolean }>(
+      await patch({ content: "Suite écrite hors ligne.", baseFingerprint: base }),
+    );
+    expect(offline).toMatchObject({ content: "Suite écrite hors ligne.", conflictSaved: true });
+
+    const versions = await body<{ label: string }[]>(
+      await call(`/api/chapters/${chapterId}/versions`, { session }),
+    );
+    expect(versions.map((version) => version.label)).toEqual([
+      "Copie avant synchronisation hors ligne",
+    ]);
   });
 
   it("exporte l'œuvre au format EPUB", async () => {

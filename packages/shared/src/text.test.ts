@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countWords, normalizeWord } from "./text";
+import { contentFingerprint, countWords, normalizeWord } from "./text";
 
 describe("countWords", () => {
   it("compte les mots d'un texte français", () => {
@@ -19,5 +19,13 @@ describe("normalizeWord", () => {
   it("met en minuscules et retire les accents", () => {
     expect(normalizeWord("  Éphémère ")).toBe("ephemere");
     expect(normalizeWord("Cœur")).toBe("cœur");
+  });
+});
+
+describe("contentFingerprint", () => {
+  it("est stable pour un même texte et distingue deux textes proches", () => {
+    expect(contentFingerprint("— Bonjour.")).toBe(contentFingerprint("— Bonjour."));
+    expect(contentFingerprint("— Bonjour.")).not.toBe(contentFingerprint("— Bonjour !"));
+    expect(contentFingerprint("")).toMatch(/^[0-9a-f]+:0$/);
   });
 });

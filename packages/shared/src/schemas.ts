@@ -23,6 +23,7 @@ export const chapterUpdate = z.object({
   title: title.optional(),
   content: z.string().max(500_000).optional(),
   wordGoal: z.number().int().min(0).max(1_000_000).nullable().optional(),
+  baseFingerprint: z.string().max(64).optional(),
 });
 export const chapterOrder = z.object({ chapterIds: z.array(z.string().min(1)).min(1) });
 

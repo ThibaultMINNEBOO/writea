@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ChapterUpdate } from "@writea/shared/schemas";
+import { useCallback } from "react";
 import { workKeys } from "@/features/library/queries";
 import { api, type ChapterSummary, unwrap, type WorkDetail } from "@/lib/api";
 
@@ -20,20 +21,39 @@ export const useChapter = (id: string) =>
     staleTime: Number.POSITIVE_INFINITY,
   });
 
+// Browsers cap keepalive request bodies at 64 KB; larger saves must not use it.
+const KEEPALIVE_MAX_CHARS = 30_000;
+
 export const saveChapter = (id: string, json: ChapterUpdate) =>
-  unwrap(api.chapters[":id"].$patch({ param: { id }, json }, { init: { keepalive: true } }));
+  unwrap(
+    api.chapters[":id"].$patch(
+      { param: { id }, json },
+      { init: { keepalive: (json.content?.length ?? 0) < KEEPALIVE_MAX_CHARS } },
+    ),
+  );
+
+export function patchWorkChapter(
+  queryClient: QueryClient,
+  workId: string,
+  chapter: Partial<ChapterSummary> & { id: string },
+) {
+  queryClient.setQueryData<WorkDetail>(workKeys.detail(workId), (work) =>
+    work
+      ? {
+          ...work,
+          chapters: work.chapters.map((c) => (c.id === chapter.id ? { ...c, ...chapter } : c)),
+        }
+      : work,
+  );
+}
 
 export function usePatchWorkChapter(workId: string) {
   const queryClient = useQueryClient();
-  return (chapter: Partial<ChapterSummary> & { id: string }) =>
-    queryClient.setQueryData<WorkDetail>(workKeys.detail(workId), (work) =>
-      work
-        ? {
-            ...work,
-            chapters: work.chapters.map((c) => (c.id === chapter.id ? { ...c, ...chapter } : c)),
-          }
-        : work,
-    );
+  return useCallback(
+    (chapter: Partial<ChapterSummary> & { id: string }) =>
+      patchWorkChapter(queryClient, workId, chapter),
+    [queryClient, workId],
+  );
 }
 
 export function useUpdateChapter(workId: string) {

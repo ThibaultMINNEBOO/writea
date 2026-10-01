@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Spinner } from "@/components/ui/spinner";
+import { DraftSync } from "@/features/offline/draft-sync";
 import { useCurrentUser } from "./use-current-user";
 
 export function RequireAuth() {
@@ -16,5 +17,10 @@ export function RequireAuth() {
 
   if (!user) return <Navigate to="/connexion" replace state={{ from: location.pathname }} />;
 
-  return <Outlet />;
+  return (
+    <>
+      <DraftSync />
+      <Outlet />
+    </>
+  );
 }

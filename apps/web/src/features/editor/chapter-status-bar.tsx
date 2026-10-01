@@ -2,6 +2,7 @@ import {
   CircleAlertIcon,
   CircleCheckIcon,
   FlameIcon,
+  HardDriveDownloadIcon,
   PartyPopperIcon,
   PenLineIcon,
   TargetIcon,
@@ -38,6 +39,17 @@ function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry(): voi
         <CircleAlertIcon data-icon="inline-start" />
         Échec de l'enregistrement, réessayer
       </Button>
+    );
+  }
+  if (status === "local") {
+    return (
+      <span
+        className="flex items-center gap-1.5 text-primary"
+        title="Le texte sera envoyé au serveur dès le retour du réseau."
+      >
+        <HardDriveDownloadIcon className="size-3.5" />
+        Sur l'appareil
+      </span>
     );
   }
   if (status === "saved") {

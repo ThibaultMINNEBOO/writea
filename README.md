@@ -12,6 +12,8 @@ Atelier d'écriture en ligne pour les auteurs francophones : écrire son œuvre 
 - **Relecture par lien** : partagez une version figée ; le relecteur, sans compte, surligne un passage et laisse un commentaire. L'auteur traite les retours depuis l'éditeur et peut révoquer le lien. Les passages commentés sont surlignés dans l'éditeur : un clic sur le surlignage ouvre le commentaire, un clic sur la citation d'un commentaire ramène au passage.
 - **Export EPUB 3** de l'œuvre complète (page de titre, table des matières, un fichier par chapitre).
 - Mode clair / sombre / système, interface entièrement en français.
+- **Application installable (PWA)** : icône sur l'écran d'accueil, ouverture en plein écran, notification des nouvelles versions.
+- **Hors ligne** : l'interface, la bibliothèque et les chapitres déjà ouverts restent disponibles sans réseau. Ce qui est écrit hors ligne est gardé sur l'appareil puis synchronisé au retour du réseau ; si le chapitre a été modifié ailleurs entre-temps, le texte du serveur est d'abord sauvegardé dans une version.
 
 ## Architecture
 
@@ -37,7 +39,7 @@ pnpm install
 cp apps/api/.dev.vars.example apps/api/.dev.vars
 ```
 
-Renseignez ensuite `BETTER_AUTH_SECRET` (au moins 32 caractères aléatoires, par exemple `openssl rand -base64 32`).
+Renseignez ensuite `BETTER_AUTH_SECRET` (au moins 32 caractères aléatoires, par exemple `openssl rand -base64 32`). `APP_URL` y reste à `http://localhost:5173` : il remplace en local l'URL de production définie dans `wrangler.jsonc`.
 
 ```bash
 pnpm --filter @writea/api db:migrate:local
@@ -52,6 +54,18 @@ pnpm dev
 ```
 
 L'application est servie sur http://localhost:5173 et l'API sur http://localhost:8787.
+
+Le service worker n'est actif qu'en production. Pour tester l'installation et le mode hors ligne en local, servez le build de production à côté de l'API :
+
+```bash
+pnpm preview
+```
+
+Les icônes PWA sont générées depuis `apps/web/public/logo.svg` :
+
+```bash
+pnpm --filter @writea/web pwa:assets
+```
 
 ## Qualité
 
