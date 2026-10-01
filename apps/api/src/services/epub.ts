@@ -46,8 +46,7 @@ const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
 const stylesheet = `body { font-family: serif; line-height: 1.5; margin: 0 5%; }
 h1 { font-size: 1.6em; text-align: center; margin: 3em 0 2em; page-break-before: always; }
 h2, h3 { margin: 1.5em 0 0.75em; }
-p { margin: 0; text-indent: 1.5em; text-align: justify; hyphens: auto; }
-h1 + p, h2 + p, h3 + p, hr + p, blockquote + p { text-indent: 0; }
+p { margin: 0 0 1em; }
 blockquote { margin: 1em 1.5em; font-style: italic; }
 hr { border: 0; margin: 1.5em 0; text-align: center; }
 hr::after { content: "⁂"; }

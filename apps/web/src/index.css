@@ -243,16 +243,9 @@
     font-family: var(--font-serif);
     font-size: 1.15rem;
     line-height: 1.85;
-    hyphens: auto;
   }
   .manuscript p {
-    margin: 0;
-    text-indent: 1.5em;
-    text-align: justify;
-  }
-  .manuscript > p:first-child,
-  .manuscript :is(h1, h2, h3, hr, blockquote) + p {
-    text-indent: 0;
+    margin: 0 0 1.85em;
   }
   .manuscript h1 {
     margin: 0 0 1.5rem;

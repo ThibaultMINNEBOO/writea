@@ -10,6 +10,7 @@ const escapeHtml = (text: string) =>
 const createRenderer = (xhtml: boolean) =>
   new Marked<string, string>({
     gfm: true,
+    breaks: true,
     renderer: {
       html: ({ text }) => escapeHtml(text),
       image: ({ text }) => escapeHtml(text),
