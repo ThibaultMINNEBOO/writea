@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/ui/toggle";
 import { ChapterEditor, type ChapterEditorHandle } from "@/features/editor/chapter-editor";
+import { ReviewsPanel } from "@/features/review/reviews-panel";
+import { ShareControls } from "@/features/review/share-controls";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
 import { VersionsPanel } from "@/features/versions/versions-panel";
 import { usePersistedState } from "@/hooks/use-persisted-state";
@@ -138,8 +140,16 @@ export function WorkspacePage() {
                           chapterId={chapterId}
                           beforeSnapshot={async () => editorRef.current?.flush()}
                           onRestored={() => setRevision((value) => value + 1)}
+                          renderShare={(version) => (
+                            <ShareControls chapterId={chapterId} version={version} />
+                          )}
                         />
                       ),
+                    },
+                    {
+                      value: "reviews" as const,
+                      label: "Relecture",
+                      content: <ReviewsPanel chapterId={chapterId} />,
                     },
                   ]
                 : []),

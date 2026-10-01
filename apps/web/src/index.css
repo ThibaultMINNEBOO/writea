@@ -202,3 +202,72 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  .manuscript {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 1.85;
+    hyphens: auto;
+  }
+  .manuscript p {
+    margin: 0;
+    text-indent: 1.5em;
+    text-align: justify;
+  }
+  .manuscript > p:first-child,
+  .manuscript :is(h1, h2, h3, hr, blockquote) + p {
+    text-indent: 0;
+  }
+  .manuscript h1 {
+    margin: 0 0 1.5rem;
+    font-size: 1.9em;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .manuscript h2 {
+    margin: 2rem 0 1rem;
+    font-size: 1.45em;
+    font-weight: 700;
+  }
+  .manuscript h3 {
+    margin: 1.5rem 0 0.75rem;
+    font-weight: 700;
+  }
+  .manuscript blockquote {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border);
+    font-style: italic;
+    color: var(--muted-foreground);
+  }
+  .manuscript hr {
+    height: auto;
+    margin: 2rem 0;
+    overflow: visible;
+    border: 0;
+    text-align: center;
+  }
+  .manuscript hr::after {
+    content: "⁂";
+    color: var(--muted-foreground);
+  }
+  .manuscript :is(ul, ol) {
+    margin: 0.75rem 0;
+    padding-left: 1.5em;
+  }
+  .manuscript ul {
+    list-style: disc;
+  }
+  .manuscript ol {
+    list-style: decimal;
+  }
+}
+
+::highlight(review-comment) {
+  background-color: color-mix(in oklab, var(--primary) 28%, transparent);
+}
+
+::highlight(review-comment-active) {
+  background-color: color-mix(in oklab, var(--primary) 60%, transparent);
+}
