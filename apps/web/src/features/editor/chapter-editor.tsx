@@ -1,6 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { countWords } from "@writea/shared/text";
-import { type Ref, useCallback, useDeferredValue, useState } from "react";
+import {
+  type Ref,
+  useCallback,
+  useDeferredValue,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   chapterKeys,
@@ -14,12 +21,14 @@ import { ChapterTitle } from "./chapter-title";
 import { MarkdownEditor, type MarkdownEditorHandle } from "./markdown-editor";
 import { useAutosave } from "./use-autosave";
 
+export type ChapterEditorHandle = MarkdownEditorHandle & { flush(): Promise<void> };
+
 type Props = {
   workId: string;
   chapterId: string;
   typewriter: boolean;
   focusMode: boolean;
-  editorRef: Ref<MarkdownEditorHandle>;
+  editorRef: Ref<ChapterEditorHandle>;
   onLookupWord(word: string): void;
 };
 
@@ -64,6 +73,14 @@ function LoadedChapterEditor({
     [chapter.id, queryClient, patchSummary],
   );
   const autosave = useAutosave(save);
+  const markdownRef = useRef<MarkdownEditorHandle>(null);
+
+  useImperativeHandle(editorRef, () => ({
+    wordAtCursor: () => markdownRef.current?.wordAtCursor() ?? null,
+    replaceWordAtCursor: (text) => markdownRef.current?.replaceWordAtCursor(text),
+    focus: () => markdownRef.current?.focus(),
+    flush: autosave.flush,
+  }));
 
   function handleChange(value: string) {
     setContent(value);
@@ -75,7 +92,7 @@ function LoadedChapterEditor({
       {!focusMode && <ChapterTitle chapter={chapter} workId={workId} />}
       <div className="min-h-0 flex-1">
         <MarkdownEditor
-          ref={editorRef}
+          ref={markdownRef}
           initialValue={chapter.content}
           typewriter={typewriter}
           onChange={handleChange}

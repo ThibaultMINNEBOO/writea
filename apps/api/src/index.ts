@@ -7,6 +7,7 @@ import type { AppEnv } from "./env";
 import { withContext } from "./middleware/context";
 import { chaptersRoutes } from "./routes/chapters";
 import { thesaurusRoutes } from "./routes/thesaurus";
+import { chapterVersionsRoutes, versionsRoutes } from "./routes/versions";
 import { worksRoutes } from "./routes/works";
 
 const app = new Hono<AppEnv>()
@@ -17,6 +18,8 @@ const app = new Hono<AppEnv>()
   .get("/health", (c) => c.json({ ok: true }))
   .route("/works", worksRoutes)
   .route("/chapters", chaptersRoutes)
+  .route("/chapters", chapterVersionsRoutes)
+  .route("/versions", versionsRoutes)
   .route("/thesaurus", thesaurusRoutes);
 
 app.onError((err, c) => {

@@ -4,9 +4,9 @@ import { Navigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/ui/toggle";
-import { ChapterEditor } from "@/features/editor/chapter-editor";
-import type { MarkdownEditorHandle } from "@/features/editor/markdown-editor";
+import { ChapterEditor, type ChapterEditorHandle } from "@/features/editor/chapter-editor";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
+import { VersionsPanel } from "@/features/versions/versions-panel";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { ChapterSidebar } from "./chapter-sidebar";
 import { useWork } from "./queries";
@@ -22,7 +22,8 @@ export function WorkspacePage() {
   const [toolsOpen, setToolsOpen] = usePersistedState("writea:tools", true);
   const [toolTab, setToolTab] = useState<ToolTab>("synonyms");
   const [lookup, setLookup] = useState({ term: "", id: 0 });
-  const editorRef = useRef<MarkdownEditorHandle>(null);
+  const editorRef = useRef<ChapterEditorHandle>(null);
+  const [revision, setRevision] = useState(0);
 
   function lookupWord(term: string) {
     setLookup((previous) => ({ term, id: previous.id + 1 }));
@@ -98,6 +99,7 @@ export function WorkspacePage() {
           )}
           {chapterId && (
             <ChapterEditor
+              key={`${chapterId}:${revision}`}
               workId={work.id}
               chapterId={chapterId}
               typewriter={typewriter}
@@ -125,6 +127,22 @@ export function WorkspacePage() {
                   />
                 ),
               },
+              ...(chapterId
+                ? [
+                    {
+                      value: "versions" as const,
+                      label: "Versions",
+                      content: (
+                        <VersionsPanel
+                          workId={work.id}
+                          chapterId={chapterId}
+                          beforeSnapshot={async () => editorRef.current?.flush()}
+                          onRestored={() => setRevision((value) => value + 1)}
+                        />
+                      ),
+                    },
+                  ]
+                : []),
             ]}
           />
         )}

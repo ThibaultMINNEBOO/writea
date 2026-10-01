@@ -69,7 +69,7 @@ export function ChapterStatusBar({
   return (
     <footer
       className={cn(
-        "flex h-10 shrink-0 items-center gap-4 border-t px-4 text-xs text-muted-foreground transition-opacity",
+        "flex h-10 shrink-0 items-center gap-4 overflow-hidden border-t px-4 text-xs whitespace-nowrap text-muted-foreground transition-opacity",
         subdued && "border-transparent opacity-30 hover:opacity-100",
       )}
     >
