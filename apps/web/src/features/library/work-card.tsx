@@ -1,4 +1,4 @@
-import { EllipsisIcon, Trash2Icon } from "lucide-react";
+import { BookDownIcon, EllipsisIcon, Trash2Icon } from "lucide-react";
 import { Link } from "react-router";
 import {
   AlertDialog,
@@ -27,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { WorkSummary } from "@/lib/api";
+import { epubUrl, type WorkSummary } from "@/lib/api";
 import { formatRelative, pluralize } from "@/lib/format";
 import { useDeleteWork } from "./queries";
 
@@ -53,6 +53,12 @@ export function WorkCard({ work }: { work: WorkSummary }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <a href={epubUrl(work.id)} download>
+                      <BookDownIcon />
+                      Exporter en EPUB
+                    </a>
+                  </DropdownMenuItem>
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem variant="destructive">
                       <Trash2Icon />

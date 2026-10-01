@@ -6,6 +6,7 @@ import { chapters, works } from "../db/schema";
 import type { AuthedEnv } from "../env";
 import { validate } from "../lib/validator";
 import { requireUser } from "../middleware/context";
+import { buildEpub } from "../services/epub";
 import { findOwnedWork } from "../services/ownership";
 
 const chapterSummary = {
@@ -103,4 +104,21 @@ export const worksRoutes = new Hono<AuthedEnv>()
     );
     if (first) await c.var.db.batch([first, ...rest]);
     return c.body(null, 204);
+  })
+  .get("/:id/export.epub", async (c) => {
+    const work = await findOwnedWork(c.var.db, c.var.user.id, c.req.param("id"));
+    const chapterList = await c.var.db
+      .select({ title: chapters.title, content: chapters.content })
+      .from(chapters)
+      .where(eq(chapters.workId, work.id))
+      .orderBy(asc(chapters.position));
+    const epub = buildEpub({ ...work, modifiedAt: work.updatedAt, chapters: chapterList });
+    const filename = `${work.title.normalize("NFC")}.epub`;
+    return new Response(epub, {
+      headers: {
+        "Content-Type": "application/epub+zip",
+        "Content-Disposition": `attachment; filename="writea.epub"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+        "Cache-Control": "no-store",
+      },
+    });
   });

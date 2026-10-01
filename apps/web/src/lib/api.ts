@@ -1,7 +1,7 @@
 import type { AppType } from "@writea/api";
 import { hc, type InferResponseType } from "hono/client";
 
-export const api = hc<AppType>("/", { init: { credentials: "include" } }).api;
+export const api = hc<AppType>(window.location.origin, { init: { credentials: "include" } }).api;
 
 export class ApiError extends Error {
   constructor(
@@ -29,3 +29,6 @@ export type WorkSummary = InferResponseType<typeof api.works.$get, 200>[number];
 export type WorkDetail = InferResponseType<(typeof api.works)[":id"]["$get"], 200>;
 export type ChapterSummary = WorkDetail["chapters"][number];
 export type Chapter = InferResponseType<(typeof api.chapters)[":id"]["$get"], 200>;
+
+export const epubUrl = (id: string) =>
+  api.works[":id"]["export.epub"].$url({ param: { id } }).pathname;

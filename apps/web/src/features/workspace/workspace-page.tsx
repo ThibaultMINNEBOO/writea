@@ -1,4 +1,4 @@
-import { MinimizeIcon, PanelRightIcon } from "lucide-react";
+import { BookDownIcon, MinimizeIcon, PanelRightIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { ShareControls } from "@/features/review/share-controls";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
 import { VersionsPanel } from "@/features/versions/versions-panel";
 import { usePersistedState } from "@/hooks/use-persisted-state";
+import { epubUrl } from "@/lib/api";
 import { ChapterSidebar } from "./chapter-sidebar";
 import { useWork } from "./queries";
 import { ToolsPanel, type ToolTab } from "./tools-panel";
@@ -70,14 +71,22 @@ export function WorkspacePage() {
           onToggleTypewriter={() => setTypewriter(!typewriter)}
           onEnterFocus={() => setFocusMode(true)}
           actions={
-            <Toggle
-              size="sm"
-              pressed={toolsOpen}
-              onPressedChange={setToolsOpen}
-              aria-label="Outils"
-            >
-              <PanelRightIcon />
-            </Toggle>
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <a href={epubUrl(work.id)} download>
+                  <BookDownIcon data-icon="inline-start" />
+                  EPUB
+                </a>
+              </Button>
+              <Toggle
+                size="sm"
+                pressed={toolsOpen}
+                onPressedChange={setToolsOpen}
+                aria-label="Outils"
+              >
+                <PanelRightIcon />
+              </Toggle>
+            </>
           }
         />
       )}
