@@ -22,7 +22,7 @@ export const frenchTypography: Extension = [
 ];
 
 export const typewriterScrolling: Extension = EditorState.transactionExtender.of((tr) =>
-  tr.docChanged || tr.selection
+  tr.docChanged || (tr.selection && !tr.isUserEvent("select.pointer"))
     ? { effects: EditorView.scrollIntoView(tr.newSelection.main.head, { y: "center" }) }
     : null,
 );
