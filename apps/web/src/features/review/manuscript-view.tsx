@@ -1,4 +1,5 @@
 import { renderMarkdown } from "@writea/shared/markdown";
+import { applyFrenchTypography } from "@writea/shared/typography";
 import { useEffect, useMemo, useRef } from "react";
 import { offsetsFromRange, rangeFromOffsets, type TextOffsets } from "./text-range";
 
@@ -17,7 +18,7 @@ const supportsHighlights = () => typeof CSS !== "undefined" && "highlights" in C
 
 export function ManuscriptView({ markdown, anchors, activeId, onSelectionChange }: Props) {
   const articleRef = useRef<HTMLElement>(null);
-  const html = useMemo(() => renderMarkdown(markdown), [markdown]);
+  const html = useMemo(() => renderMarkdown(applyFrenchTypography(markdown)), [markdown]);
 
   useEffect(() => {
     const root = articleRef.current;

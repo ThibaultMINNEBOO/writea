@@ -1,5 +1,6 @@
 import { CheckIcon, MessagesSquareIcon, RotateCcwIcon } from "lucide-react";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { coverClass, initials } from "@/lib/cover";
 import { formatRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useChapterComments, useResolveComment } from "./queries";
@@ -65,6 +67,16 @@ export function ReviewsPanel({ chapterId }: { chapterId: string }) {
             )}
           >
             <div className="flex items-center gap-2">
+              <Avatar className="size-6">
+                <AvatarFallback
+                  className={cn(
+                    "text-[0.65rem] text-cover-foreground",
+                    coverClass(comment.reviewerName),
+                  )}
+                >
+                  {initials(comment.reviewerName)}
+                </AvatarFallback>
+              </Avatar>
               <span className="font-medium">{comment.reviewerName}</span>
               <span className="text-xs text-muted-foreground">
                 {formatRelative(comment.createdAt)}

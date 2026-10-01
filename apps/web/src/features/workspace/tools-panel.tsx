@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +11,7 @@ type Props = {
   tab: ToolTab;
   onOpenChange(open: boolean): void;
   onTabChange(tab: ToolTab): void;
-  tabs: { value: ToolTab; label: string; content: ReactNode }[];
+  tabs: { value: ToolTab; label: string; icon: LucideIcon; badge?: number; content: ReactNode }[];
 };
 
 const isToolTab = (value: string): value is ToolTab =>
@@ -24,9 +25,15 @@ function PanelTabs({ tab, onTabChange, tabs }: Omit<Props, "docked" | "open" | "
       className="flex min-h-0 flex-1 flex-col gap-4"
     >
       <TabsList className="w-full">
-        {tabs.map(({ value, label }) => (
-          <TabsTrigger key={value} value={value}>
+        {tabs.map(({ value, label, icon: Icon, badge }) => (
+          <TabsTrigger key={value} value={value} className="gap-1.5">
+            <Icon />
             {label}
+            {badge ? (
+              <span className="grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[0.65rem] leading-4 text-primary-foreground">
+                {badge}
+              </span>
+            ) : null}
           </TabsTrigger>
         ))}
       </TabsList>

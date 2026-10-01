@@ -1,4 +1,11 @@
-import { BookDownIcon, MinimizeIcon, PanelRightIcon } from "lucide-react";
+import {
+  BookDownIcon,
+  BookOpenTextIcon,
+  HistoryIcon,
+  MessagesSquareIcon,
+  MinimizeIcon,
+  PanelRightIcon,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -6,6 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/ui/toggle";
 import { ChapterEditor, type ChapterEditorHandle } from "@/features/editor/chapter-editor";
+import { useChapterComments } from "@/features/review/queries";
 import { ReviewsPanel } from "@/features/review/reviews-panel";
 import { ShareControls } from "@/features/review/share-controls";
 import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
@@ -28,6 +36,8 @@ export function WorkspacePage() {
   const [toolTab, setToolTab] = useState<ToolTab>("synonyms");
   const [lookup, setLookup] = useState({ term: "", id: 0 });
   const editorRef = useRef<ChapterEditorHandle>(null);
+  const { data: comments } = useChapterComments(chapterId ?? "");
+  const openComments = comments?.filter((comment) => !comment.resolvedAt).length ?? 0;
   const [revision, setRevision] = useState(0);
 
   function lookupWord(term: string) {
@@ -146,6 +156,7 @@ export function WorkspacePage() {
               {
                 value: "synonyms",
                 label: "Synonymes",
+                icon: BookOpenTextIcon,
                 content: (
                   <SynonymsPanel
                     key={lookup.id}
@@ -159,6 +170,7 @@ export function WorkspacePage() {
                     {
                       value: "versions" as const,
                       label: "Versions",
+                      icon: HistoryIcon,
                       content: (
                         <VersionsPanel
                           workId={work.id}
@@ -174,6 +186,8 @@ export function WorkspacePage() {
                     {
                       value: "reviews" as const,
                       label: "Relecture",
+                      icon: MessagesSquareIcon,
+                      badge: openComments,
                       content: <ReviewsPanel chapterId={chapterId} />,
                     },
                   ]

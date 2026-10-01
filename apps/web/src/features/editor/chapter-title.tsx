@@ -28,7 +28,7 @@ export function ChapterTitle({ chapter, workId }: { chapter: Chapter; workId: st
         onChange={(event) => setTitle(event.target.value)}
         onBlur={commit}
         onKeyDown={handleKeyDown}
-        className="w-full bg-transparent font-serif text-4xl font-semibold tracking-tight outline-none placeholder:text-muted-foreground"
+        className="w-full bg-transparent font-heading text-4xl font-semibold tracking-tight outline-none placeholder:text-muted-foreground"
         placeholder="Titre du chapitre"
       />
     </div>

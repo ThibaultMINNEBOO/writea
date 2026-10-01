@@ -54,7 +54,7 @@ export function WorkspaceHeader({
           <PanelLeftIcon />
         </Toggle>
       </WithTooltip>
-      <h1 className="truncate px-2 font-serif text-base font-semibold">{title}</h1>
+      <h1 className="truncate px-2 font-heading text-base font-semibold">{title}</h1>
       <div className="ml-auto flex items-center gap-1">
         {actions}
         <WithTooltip label="Défilement machine à écrire">

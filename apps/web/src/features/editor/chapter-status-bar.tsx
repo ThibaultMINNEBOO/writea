@@ -1,5 +1,14 @@
-import { CircleAlertIcon, CircleCheckIcon, TargetIcon } from "lucide-react";
-import type { FormEvent } from "react";
+import {
+  CircleAlertIcon,
+  CircleCheckIcon,
+  FlameIcon,
+  PartyPopperIcon,
+  PenLineIcon,
+  TargetIcon,
+  TrophyIcon,
+} from "lucide-react";
+import { type FormEvent, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -59,6 +68,18 @@ export function ChapterStatusBar({
   const updateChapter = useUpdateChapter(workId);
   const goal = chapter.wordGoal;
   const progress = goal ? Math.min(100, Math.round((wordCount / goal) * 100)) : 0;
+  const reached = goal !== null && wordCount >= goal;
+  const wasReached = useRef(reached);
+
+  useEffect(() => {
+    if (reached && !wasReached.current && goal) {
+      toast.success("Objectif atteint !", {
+        icon: <PartyPopperIcon className="size-4" />,
+        description: `${formatNumber(goal)} mots pour « ${chapter.title} ». Bravo !`,
+      });
+    }
+    wasReached.current = reached;
+  }, [reached, goal, chapter.title]);
 
   function handleGoalSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,9 +94,13 @@ export function ChapterStatusBar({
         subdued && "border-transparent opacity-30 hover:opacity-100",
       )}
     >
-      <span>{pluralize(wordCount, "mot")}</span>
+      <span className="flex items-center gap-1.5">
+        <PenLineIcon className="size-3.5" />
+        {pluralize(wordCount, "mot")}
+      </span>
       {sessionWords !== 0 && (
-        <span>
+        <span className={cn("flex items-center gap-1", sessionWords > 0 && "text-primary")}>
+          <FlameIcon className="size-3.5" />
           {sessionWords > 0 ? "+" : "−"}
           {formatNumber(Math.abs(sessionWords))} cette session
         </span>
@@ -83,7 +108,11 @@ export function ChapterStatusBar({
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="xs">
-            <TargetIcon data-icon="inline-start" />
+            {reached ? (
+              <TrophyIcon data-icon="inline-start" className="text-primary" />
+            ) : (
+              <TargetIcon data-icon="inline-start" />
+            )}
             {goal ? `${progress} % de ${formatNumber(goal)}` : "Fixer un objectif"}
           </Button>
         </PopoverTrigger>

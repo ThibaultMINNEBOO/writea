@@ -5,7 +5,7 @@ Atelier d'écriture en ligne pour les auteurs francophones : écrire son œuvre 
 ## Fonctionnalités
 
 - **Éditeur Markdown** (CodeMirror 6), typographie soignée, mode focus (`⌘⇧F`), défilement « machine à écrire », raccourcis `⌘B` / `⌘I`.
-- **Tirets français automatiques** : un `-` en début de ligne devient un tiret de dialogue `—` ; un ` - ` entre deux espaces devient une incise ` — `. Les traits d'union (« peut-être ») sont préservés. La règle s'applique à la frappe, au collage et à l'export.
+- **Typographie française automatique** : un `-` en début de ligne devient un tiret de dialogue `—`, un ` - ` entre deux espaces devient une incise ` — `, et les guillemets `"…"` ou `“…”` deviennent `« … »` avec espaces insécables. Les traits d'union (« peut-être ») sont préservés. Les règles s'appliquent à la frappe, au collage, à la relecture et à l'export.
 - **Synonymes** : placez le curseur sur un mot puis `⌘⇧S`, ou cherchez un terme dans le panneau. Un clic remplace le mot en conservant la majuscule.
 - **Sauvegarde automatique** dans le cloud, compteur de mots, objectif par chapitre et mots écrits pendant la session.
 - **Versions** : figez un chapitre, restaurez une version sans rien perdre (l'état courant est conservé automatiquement).
@@ -17,7 +17,7 @@ Atelier d'écriture en ligne pour les auteurs francophones : écrire son œuvre 
 
 ```
 apps/api       API Hono sur Cloudflare Workers, D1 + Drizzle ORM, Better Auth
-apps/web       SPA React (Vite) + shadcn/ui, thème tweakcn « Vintage Paper », hébergée sur Vercel
+apps/web       SPA React (Vite) + shadcn/ui, thème tweakcn « Vintage Paper », icônes Lucide, polices Fraunces / Figtree / Literata, hébergée sur Vercel
 packages/shared  Typographie, comptage de mots, rendu Markdown et schémas zod partagés
 ```
 

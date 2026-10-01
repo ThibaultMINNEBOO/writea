@@ -28,6 +28,7 @@ export const useChapterComments = (chapterId: string) =>
   useQuery({
     queryKey: reviewKeys.chapterComments(chapterId),
     queryFn: () => unwrap(api.chapters[":id"].comments.$get({ param: { id: chapterId } })),
+    enabled: chapterId !== "",
     refetchOnWindowFocus: true,
   });
 

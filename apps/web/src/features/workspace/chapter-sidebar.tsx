@@ -37,13 +37,14 @@ import { useCreateChapter, useDeleteChapter, useReorderChapters } from "./querie
 
 type ItemProps = {
   chapter: ChapterSummary;
+  number: number;
   workId: string;
   canDelete: boolean;
   onDelete(id: string): void;
   onNavigate?(): void;
 };
 
-function SortableChapter({ chapter, workId, canDelete, onDelete, onNavigate }: ItemProps) {
+function SortableChapter({ chapter, number, workId, canDelete, onDelete, onNavigate }: ItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: chapter.id,
   });
@@ -59,21 +60,36 @@ function SortableChapter({ chapter, workId, canDelete, onDelete, onNavigate }: I
         onClick={onNavigate}
         className={({ isActive }) =>
           cn(
-            "flex flex-col gap-0.5 rounded-md py-2 pr-8 pl-7 text-sm transition-colors hover:bg-accent",
-            isActive && "bg-accent text-accent-foreground",
+            "group/link flex items-start gap-2.5 rounded-lg py-2 pr-8 pl-2 text-sm transition-colors hover:bg-accent",
+            isActive && "bg-accent text-accent-foreground shadow-xs",
           )
         }
       >
-        <span className="truncate font-medium">{chapter.title}</span>
-        <span className="text-xs text-muted-foreground">
-          {pluralize(chapter.wordCount, "mot")}
-          {chapter.wordGoal ? ` / ${formatNumber(chapter.wordGoal)}` : ""}
+        <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary/15 font-heading text-xs font-semibold text-primary transition-opacity group-hover:opacity-0 group-aria-[current=page]/link:bg-primary group-aria-[current=page]/link:text-primary-foreground">
+          {number}
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate font-medium">{chapter.title}</span>
+          <span className="text-xs text-muted-foreground">
+            {pluralize(chapter.wordCount, "mot")}
+            {chapter.wordGoal ? ` / ${formatNumber(chapter.wordGoal)}` : ""}
+          </span>
+          {chapter.wordGoal ? (
+            <span className="mt-1 h-1 overflow-hidden rounded-full bg-primary/15">
+              <span
+                className="block h-full rounded-full bg-primary transition-[width] duration-500"
+                style={{
+                  width: `${Math.min(100, (chapter.wordCount / chapter.wordGoal) * 100)}%`,
+                }}
+              />
+            </span>
+          ) : null}
         </span>
       </NavLink>
       <button
         type="button"
         aria-label={`Déplacer ${chapter.title}`}
-        className="absolute top-1/2 left-1 -translate-y-1/2 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+        className="absolute top-2.5 left-3 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         {...attributes}
         {...listeners}
       >
@@ -184,10 +200,11 @@ export function ChapterSidebar({ work, activeId, className, onNavigate }: Props)
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={work.chapters} strategy={verticalListSortingStrategy}>
             <ol className="flex flex-col gap-0.5 p-2">
-              {work.chapters.map((chapter) => (
+              {work.chapters.map((chapter, index) => (
                 <SortableChapter
                   key={chapter.id}
                   chapter={chapter}
+                  number={index + 1}
                   workId={work.id}
                   canDelete={work.chapters.length > 1}
                   onDelete={handleDelete}

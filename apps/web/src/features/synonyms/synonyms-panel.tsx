@@ -75,7 +75,7 @@ export function SynonymsPanel({ initialTerm, onPick }: Props) {
             entry.meanings.map((meaning) => (
               <section key={meaning.id} className="flex flex-col gap-2">
                 <h3 className="text-sm">
-                  <span className="font-serif font-semibold">{entry.word}</span>
+                  <span className="font-heading font-semibold">{entry.word}</span>
                   {meaning.partOfSpeech && (
                     <span className="ml-2 text-xs text-muted-foreground italic">
                       {meaning.partOfSpeech}

@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { ThemeToggle } from "@/features/theme/theme-toggle";
 import { authClient, translateAuthError } from "@/lib/auth-client";
+import { AuthShowcase } from "./auth-showcase";
 
 type Mode = "signin" | "signup";
 
@@ -75,64 +77,65 @@ export function AuthPage({ mode }: { mode: Mode }) {
   }
 
   return (
-    <div className="relative grid min-h-svh place-items-center bg-muted/40 p-4">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <Link to="/" className="text-center font-serif text-3xl font-semibold tracking-tight">
-          Writea
-        </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle>{text.title}</CardTitle>
-            <CardDescription>{text.description}</CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent>
-              <FieldGroup>
-                {mode === "signup" && (
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <AuthShowcase />
+      <div className="relative flex items-center justify-center p-4">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <div className="flex w-full max-w-sm animate-in flex-col gap-6 duration-500 fade-in slide-in-from-bottom-4">
+          <Logo className="justify-center lg:hidden" />
+          <Card>
+            <CardHeader>
+              <CardTitle>{text.title}</CardTitle>
+              <CardDescription>{text.description}</CardDescription>
+            </CardHeader>
+            <form onSubmit={handleSubmit}>
+              <CardContent>
+                <FieldGroup>
+                  {mode === "signup" && (
+                    <Field>
+                      <FieldLabel htmlFor="name">Nom ou nom de plume</FieldLabel>
+                      <Input id="name" name="name" autoComplete="name" required />
+                    </Field>
+                  )}
                   <Field>
-                    <FieldLabel htmlFor="name">Nom ou nom de plume</FieldLabel>
-                    <Input id="name" name="name" autoComplete="name" required />
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <Input id="email" name="email" type="email" autoComplete="email" required />
                   </Field>
-                )}
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input id="email" name="email" type="email" autoComplete="email" required />
-                </Field>
-                <Field data-invalid={Boolean(error)}>
-                  <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    minLength={8}
-                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                    aria-invalid={Boolean(error)}
-                    required
-                  />
-                  {error && <FieldError>{error}</FieldError>}
-                </Field>
-              </FieldGroup>
-            </CardContent>
-            <CardFooter className="mt-6 flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={pending}>
-                {pending && <Spinner data-icon="inline-start" />}
-                {text.submit}
-              </Button>
-              <p className="text-sm text-muted-foreground">
-                {text.switchLabel}{" "}
-                <Link
-                  to={text.switchLink.to}
-                  className="text-foreground underline underline-offset-4"
-                >
-                  {text.switchLink.label}
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
+                  <Field data-invalid={Boolean(error)}>
+                    <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      minLength={8}
+                      autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                      aria-invalid={Boolean(error)}
+                      required
+                    />
+                    {error && <FieldError>{error}</FieldError>}
+                  </Field>
+                </FieldGroup>
+              </CardContent>
+              <CardFooter className="mt-6 flex flex-col gap-4">
+                <Button type="submit" className="w-full" disabled={pending}>
+                  {pending && <Spinner data-icon="inline-start" />}
+                  {text.submit}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  {text.switchLabel}{" "}
+                  <Link
+                    to={text.switchLink.to}
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    {text.switchLink.label}
+                  </Link>
+                </p>
+              </CardFooter>
+            </form>
+          </Card>
+        </div>
       </div>
     </div>
   );
