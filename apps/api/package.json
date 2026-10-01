@@ -4,14 +4,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts"
+      "types": "./dist/types/src/index.d.ts"
     }
   },
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "build": "wrangler deploy --dry-run --outdir dist",
-    "typecheck": "tsc",
+    "typecheck": "tsc -b",
     "test": "vitest run",
     "cf-typegen": "wrangler types",
     "db:generate": "drizzle-kit generate",
