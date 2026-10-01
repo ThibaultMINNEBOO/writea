@@ -8,7 +8,7 @@ export type WordTarget = { from: number; to: number; text: string };
 
 export type MarkdownEditorHandle = {
   wordAtCursor(): WordTarget | null;
-  replace(target: WordTarget, text: string): void;
+  replaceWordAtCursor(text: string): void;
   focus(): void;
 };
 
@@ -29,6 +29,17 @@ function wordAtCursor(view: EditorView): WordTarget | null {
   return text ? { from: range.from, to: range.to, text } : null;
 }
 
+function matchCapitalization(original: string, replacement: string) {
+  const first = original.charAt(0);
+  const isCapitalized =
+    first !== "" &&
+    first === first.toLocaleUpperCase("fr") &&
+    first !== first.toLocaleLowerCase("fr");
+  return isCapitalized
+    ? replacement.charAt(0).toLocaleUpperCase("fr") + replacement.slice(1)
+    : replacement;
+}
+
 export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWord, ref }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -40,12 +51,15 @@ export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWor
 
   useImperativeHandle(ref, () => ({
     wordAtCursor: () => (viewRef.current ? wordAtCursor(viewRef.current) : null),
-    replace(target, text) {
+    replaceWordAtCursor(text) {
       const view = viewRef.current;
       if (!view) return;
+      const head = view.state.selection.main.head;
+      const target = wordAtCursor(view) ?? { from: head, to: head, text: "" };
+      const insert = matchCapitalization(target.text, text);
       view.dispatch({
-        changes: { from: target.from, to: target.to, insert: text },
-        selection: { anchor: target.from + text.length },
+        changes: { from: target.from, to: target.to, insert },
+        selection: { anchor: target.from + insert.length },
         userEvent: "input.replace",
       });
       view.focus();

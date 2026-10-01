@@ -6,6 +6,7 @@ import { createDb } from "./db/client";
 import type { AppEnv } from "./env";
 import { withContext } from "./middleware/context";
 import { chaptersRoutes } from "./routes/chapters";
+import { thesaurusRoutes } from "./routes/thesaurus";
 import { worksRoutes } from "./routes/works";
 
 const app = new Hono<AppEnv>()
@@ -15,7 +16,8 @@ const app = new Hono<AppEnv>()
   .use("*", withContext)
   .get("/health", (c) => c.json({ ok: true }))
   .route("/works", worksRoutes)
-  .route("/chapters", chaptersRoutes);
+  .route("/chapters", chaptersRoutes)
+  .route("/thesaurus", thesaurusRoutes);
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) return c.json({ error: err.message }, err.status);

@@ -1,13 +1,16 @@
-import { MinimizeIcon } from "lucide-react";
+import { MinimizeIcon, PanelRightIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Toggle } from "@/components/ui/toggle";
 import { ChapterEditor } from "@/features/editor/chapter-editor";
 import type { MarkdownEditorHandle } from "@/features/editor/markdown-editor";
+import { SynonymsPanel } from "@/features/synonyms/synonyms-panel";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 import { ChapterSidebar } from "./chapter-sidebar";
 import { useWork } from "./queries";
+import { ToolsPanel, type ToolTab } from "./tools-panel";
 import { WorkspaceHeader } from "./workspace-header";
 
 export function WorkspacePage() {
@@ -16,7 +19,16 @@ export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = usePersistedState("writea:sidebar", true);
   const [typewriter, setTypewriter] = usePersistedState("writea:typewriter", false);
   const [focusMode, setFocusMode] = useState(false);
+  const [toolsOpen, setToolsOpen] = usePersistedState("writea:tools", true);
+  const [toolTab, setToolTab] = useState<ToolTab>("synonyms");
+  const [lookup, setLookup] = useState({ term: "", id: 0 });
   const editorRef = useRef<MarkdownEditorHandle>(null);
+
+  function lookupWord(term: string) {
+    setLookup((previous) => ({ term, id: previous.id + 1 }));
+    setToolTab("synonyms");
+    setToolsOpen(true);
+  }
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -54,6 +66,16 @@ export function WorkspacePage() {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           onToggleTypewriter={() => setTypewriter(!typewriter)}
           onEnterFocus={() => setFocusMode(true)}
+          actions={
+            <Toggle
+              size="sm"
+              pressed={toolsOpen}
+              onPressedChange={setToolsOpen}
+              aria-label="Outils"
+            >
+              <PanelRightIcon />
+            </Toggle>
+          }
         />
       )}
       <div className="flex min-h-0 flex-1">
@@ -81,10 +103,31 @@ export function WorkspacePage() {
               typewriter={typewriter}
               focusMode={focusMode}
               editorRef={editorRef}
-              onLookupWord={() => {}}
+              onLookupWord={lookupWord}
             />
           )}
         </main>
+        {!focusMode && (
+          <ToolsPanel
+            open={toolsOpen}
+            onOpenChange={setToolsOpen}
+            tab={toolTab}
+            onTabChange={setToolTab}
+            tabs={[
+              {
+                value: "synonyms",
+                label: "Synonymes",
+                content: (
+                  <SynonymsPanel
+                    key={lookup.id}
+                    initialTerm={lookup.term}
+                    onPick={(synonym) => editorRef.current?.replaceWordAtCursor(synonym)}
+                  />
+                ),
+              },
+            ]}
+          />
+        )}
       </div>
     </div>
   );
