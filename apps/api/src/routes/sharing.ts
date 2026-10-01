@@ -41,6 +41,7 @@ export const chapterCommentsRoutes = new Hono<AuthedEnv>()
         versionLabel: chapterVersions.label,
         reviewerName: reviewComments.reviewerName,
         quote: reviewComments.quote,
+        startOffset: reviewComments.startOffset,
         body: reviewComments.body,
         createdAt: reviewComments.createdAt,
         resolvedAt: reviewComments.resolvedAt,

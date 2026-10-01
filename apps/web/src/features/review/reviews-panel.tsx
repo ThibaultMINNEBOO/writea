@@ -1,5 +1,5 @@
-import { CheckIcon, MessagesSquareIcon, RotateCcwIcon } from "lucide-react";
-import { useState } from "react";
+import { CheckIcon, LocateFixedIcon, MessagesSquareIcon, RotateCcwIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,24 @@ import { useChapterComments, useResolveComment } from "./queries";
 
 type Filter = "open" | "all";
 
-export function ReviewsPanel({ chapterId }: { chapterId: string }) {
+type Props = {
+  chapterId: string;
+  activeId: string | null;
+  onReveal(id: string): void;
+};
+
+export function ReviewsPanel({ chapterId, activeId, onReveal }: Props) {
   const { data: comments, isPending } = useChapterComments(chapterId);
   const resolve = useResolveComment(chapterId);
   const [filter, setFilter] = useState<Filter>("open");
   const visible = comments?.filter((comment) => filter === "all" || !comment.resolvedAt) ?? [];
+
+  useEffect(() => {
+    if (activeId)
+      document
+        .getElementById(`comment-${activeId}`)
+        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeId]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -64,7 +77,9 @@ export function ReviewsPanel({ chapterId }: { chapterId: string }) {
             className={cn(
               "flex flex-col gap-2 rounded-md border bg-card p-3 text-sm",
               comment.resolvedAt && "opacity-60",
+              activeId === comment.id && "border-primary ring-2 ring-primary/30",
             )}
+            id={`comment-${comment.id}`}
           >
             <div className="flex items-center gap-2">
               <Avatar className="size-6">
@@ -82,11 +97,24 @@ export function ReviewsPanel({ chapterId }: { chapterId: string }) {
                 {formatRelative(comment.createdAt)}
               </span>
             </div>
-            {comment.quote && (
-              <blockquote className="line-clamp-3 border-l-2 pl-2 font-serif text-muted-foreground italic">
-                {comment.quote}
-              </blockquote>
-            )}
+            {comment.quote &&
+              (comment.resolvedAt ? (
+                <blockquote className="line-clamp-3 border-l-2 pl-2 font-serif text-muted-foreground italic">
+                  {comment.quote}
+                </blockquote>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onReveal(comment.id)}
+                  title="Aller au passage dans le texte"
+                  className="group/quote flex items-start gap-2 rounded-md border-l-2 border-primary/60 py-0.5 pr-1 pl-2 text-left transition-colors hover:bg-accent"
+                >
+                  <span className="line-clamp-3 flex-1 font-serif text-muted-foreground italic">
+                    {comment.quote}
+                  </span>
+                  <LocateFixedIcon className="mt-0.5 size-3.5 shrink-0 text-primary opacity-60 group-hover/quote:opacity-100" />
+                </button>
+              ))}
             <p className="whitespace-pre-wrap">{comment.body}</p>
             <div className="flex items-center justify-between gap-2">
               <Badge variant="outline" className="truncate">

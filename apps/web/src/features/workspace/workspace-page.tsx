@@ -6,8 +6,9 @@ import {
   MinimizeIcon,
   PanelRightIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
@@ -38,6 +39,31 @@ export function WorkspacePage() {
   const editorRef = useRef<ChapterEditorHandle>(null);
   const { data: comments } = useChapterComments(chapterId ?? "");
   const openComments = comments?.filter((comment) => !comment.resolvedAt).length ?? 0;
+  const quotedComments = useMemo(
+    () =>
+      comments
+        ?.filter((comment) => !comment.resolvedAt && comment.quote)
+        .map((comment) => ({ id: comment.id, quote: comment.quote, hint: comment.startOffset })) ??
+      [],
+    [comments],
+  );
+  const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
+
+  function selectComment(id: string) {
+    setActiveCommentId(id);
+    setToolTab("reviews");
+    tools.setOpen(true);
+  }
+
+  function revealComment(id: string) {
+    setActiveCommentId(id);
+    if (!tools.docked) tools.setOpen(false);
+    if (!editorRef.current?.revealComment(id)) {
+      toast.info("Passage introuvable", {
+        description: "Le texte a été modifié depuis la version commentée.",
+      });
+    }
+  }
   const [revision, setRevision] = useState(0);
 
   function lookupWord(term: string) {
@@ -142,6 +168,8 @@ export function WorkspacePage() {
               focusMode={focusMode}
               editorRef={editorRef}
               onLookupWord={lookupWord}
+              comments={quotedComments}
+              onCommentSelect={selectComment}
             />
           )}
         </main>
@@ -188,7 +216,13 @@ export function WorkspacePage() {
                       label: "Relecture",
                       icon: MessagesSquareIcon,
                       badge: openComments,
-                      content: <ReviewsPanel chapterId={chapterId} />,
+                      content: (
+                        <ReviewsPanel
+                          chapterId={chapterId}
+                          activeId={activeCommentId}
+                          onReveal={revealComment}
+                        />
+                      ),
                     },
                   ]
                 : []),

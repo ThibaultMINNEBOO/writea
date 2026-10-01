@@ -6,7 +6,8 @@
     "./typography": "./src/typography.ts",
     "./text": "./src/text.ts",
     "./schemas": "./src/schemas.ts",
-    "./markdown": "./src/markdown.ts"
+    "./markdown": "./src/markdown.ts",
+    "./locate": "./src/locate.ts"
   },
   "scripts": {
     "typecheck": "tsc",

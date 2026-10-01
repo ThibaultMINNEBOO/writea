@@ -9,7 +9,7 @@ Atelier d'écriture en ligne pour les auteurs francophones : écrire son œuvre 
 - **Synonymes** : placez le curseur sur un mot puis `⌘⇧S`, ou cherchez un terme dans le panneau. Un clic remplace le mot en conservant la majuscule.
 - **Sauvegarde automatique** dans le cloud, compteur de mots, objectif par chapitre et mots écrits pendant la session.
 - **Versions** : figez un chapitre, restaurez une version sans rien perdre (l'état courant est conservé automatiquement).
-- **Relecture par lien** : partagez une version figée ; le relecteur, sans compte, surligne un passage et laisse un commentaire. L'auteur traite les retours depuis l'éditeur et peut révoquer le lien.
+- **Relecture par lien** : partagez une version figée ; le relecteur, sans compte, surligne un passage et laisse un commentaire. L'auteur traite les retours depuis l'éditeur et peut révoquer le lien. Les passages commentés sont surlignés dans l'éditeur : un clic sur le surlignage ouvre le commentaire, un clic sur la citation d'un commentaire ramène au passage.
 - **Export EPUB 3** de l'œuvre complète (page de titre, table des matières, un fichier par chapitre).
 - Mode clair / sombre / système, interface entièrement en français.
 

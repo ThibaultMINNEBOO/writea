@@ -1,14 +1,19 @@
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap, placeholder } from "@codemirror/view";
+import { locateQuote } from "@writea/shared/locate";
 import { type Ref, useEffect, useImperativeHandle, useLayoutEffect, useRef } from "react";
+import { commentMarks, findCommentRange, flashRange, setCommentRanges } from "./comment-marks";
 import { formattingKeymap, typewriterScrolling, writingSetup } from "./extensions";
 
 export type WordTarget = { from: number; to: number; text: string };
 
+export type QuotedComment = { id: string; quote: string; hint: number };
+
 export type MarkdownEditorHandle = {
   wordAtCursor(): WordTarget | null;
   replaceWordAtCursor(text: string): void;
+  revealComment(id: string): boolean;
   focus(): void;
 };
 
@@ -17,6 +22,8 @@ type Props = {
   typewriter: boolean;
   onChange(value: string): void;
   onLookupWord(word: string): void;
+  comments: QuotedComment[];
+  onCommentSelect(id: string): void;
   ref?: Ref<MarkdownEditorHandle>;
 };
 
@@ -40,13 +47,21 @@ function matchCapitalization(original: string, replacement: string) {
     : replacement;
 }
 
-export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWord, ref }: Props) {
+export function MarkdownEditor({
+  initialValue,
+  typewriter,
+  onChange,
+  onLookupWord,
+  comments,
+  onCommentSelect,
+  ref,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const typewriterCompartment = useRef(new Compartment());
-  const callbacks = useRef({ onChange, onLookupWord });
+  const callbacks = useRef({ onChange, onLookupWord, onCommentSelect });
   useLayoutEffect(() => {
-    callbacks.current = { onChange, onLookupWord };
+    callbacks.current = { onChange, onLookupWord, onCommentSelect };
   });
 
   useImperativeHandle(ref, () => ({
@@ -63,6 +78,21 @@ export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWor
         userEvent: "input.replace",
       });
       view.focus();
+    },
+    revealComment(id) {
+      const view = viewRef.current;
+      const range = view ? findCommentRange(view, id) : null;
+      if (!view || !range) return false;
+      view.dispatch({
+        selection: { anchor: range.from, head: range.to },
+        effects: [
+          EditorView.scrollIntoView(range.from, { y: "center" }),
+          flashRange.of({ from: range.from, to: range.to }),
+        ],
+      });
+      view.focus();
+      window.setTimeout(() => view.dispatch({ effects: flashRange.of(null) }), 1600);
+      return true;
     },
     focus: () => viewRef.current?.focus(),
   }));
@@ -92,6 +122,7 @@ export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWor
             ...historyKeymap,
           ]),
           writingSetup,
+          commentMarks((id) => callbacks.current.onCommentSelect(id)),
           placeholder("Il était une fois…"),
           typewriterCompartment.current.of(typewriter ? typewriterScrolling : []),
           EditorView.updateListener.of((update) => {
@@ -108,6 +139,17 @@ export function MarkdownEditor({ initialValue, typewriter, onChange, onLookupWor
       viewRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    const source = view.state.doc.toString();
+    const ranges = comments.flatMap(({ id, quote, hint }) => {
+      const range = locateQuote(source, quote, hint);
+      return range ? [{ id, ...range }] : [];
+    });
+    view.dispatch({ effects: setCommentRanges.of(ranges) });
+  }, [comments]);
 
   useEffect(() => {
     viewRef.current?.dispatch({

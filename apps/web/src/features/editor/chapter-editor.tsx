@@ -18,7 +18,7 @@ import {
 import type { Chapter } from "@/lib/api";
 import { ChapterStatusBar } from "./chapter-status-bar";
 import { ChapterTitle } from "./chapter-title";
-import { MarkdownEditor, type MarkdownEditorHandle } from "./markdown-editor";
+import { MarkdownEditor, type MarkdownEditorHandle, type QuotedComment } from "./markdown-editor";
 import { useAutosave } from "./use-autosave";
 
 export type ChapterEditorHandle = MarkdownEditorHandle & { flush(): Promise<void> };
@@ -29,7 +29,9 @@ type Props = {
   typewriter: boolean;
   focusMode: boolean;
   editorRef: Ref<ChapterEditorHandle>;
+  comments: QuotedComment[];
   onLookupWord(word: string): void;
+  onCommentSelect(id: string): void;
 };
 
 export function ChapterEditor({ chapterId, ...props }: Props) {
@@ -55,7 +57,9 @@ function LoadedChapterEditor({
   typewriter,
   focusMode,
   editorRef,
+  comments,
   onLookupWord,
+  onCommentSelect,
 }: Omit<Props, "chapterId"> & { chapter: Chapter }) {
   const queryClient = useQueryClient();
   const patchSummary = usePatchWorkChapter(workId);
@@ -78,6 +82,7 @@ function LoadedChapterEditor({
   useImperativeHandle(editorRef, () => ({
     wordAtCursor: () => markdownRef.current?.wordAtCursor() ?? null,
     replaceWordAtCursor: (text) => markdownRef.current?.replaceWordAtCursor(text),
+    revealComment: (id) => markdownRef.current?.revealComment(id) ?? false,
     focus: () => markdownRef.current?.focus(),
     flush: autosave.flush,
   }));
@@ -97,6 +102,8 @@ function LoadedChapterEditor({
           typewriter={typewriter}
           onChange={handleChange}
           onLookupWord={onLookupWord}
+          comments={comments}
+          onCommentSelect={onCommentSelect}
         />
       </div>
       <ChapterStatusBar
