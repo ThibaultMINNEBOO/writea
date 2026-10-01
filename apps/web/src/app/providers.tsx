@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PwaUpdater } from "@/features/pwa/pwa-updater";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -18,6 +19,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <TooltipProvider>
           {children}
           <Toaster position="bottom-right" />
+          <PwaUpdater />
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>

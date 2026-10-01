@@ -4,8 +4,20 @@
     {
       "name": "writea",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
+      "runtimeArgs": [
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "writea-pwa-preview",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@writea/web",
+        "preview"
+      ],
+      "port": 4173
     }
   ]
 }

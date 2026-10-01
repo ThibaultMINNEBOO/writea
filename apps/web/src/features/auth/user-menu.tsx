@@ -1,4 +1,4 @@
-import { LogOutIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, MonitorDownIcon, UserIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,11 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useInstallPrompt } from "@/features/pwa/install-prompt";
 import { authClient } from "@/lib/auth-client";
 
 export function UserMenu() {
   const navigate = useNavigate();
   const { data } = authClient.useSession();
+  const { canInstall, install } = useInstallPrompt();
   if (!data) return null;
 
   async function signOut() {
@@ -38,6 +40,12 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          {canInstall && (
+            <DropdownMenuItem onSelect={() => void install()}>
+              <MonitorDownIcon />
+              Installer l'application
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={signOut}>
             <LogOutIcon />
             Se déconnecter

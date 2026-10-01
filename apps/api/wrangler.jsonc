@@ -10,7 +10,7 @@
 		"enabled": true
 	},
 	"vars": {
-		"APP_URL": "https://writea.vercel.app"
+		"APP_URL": "https://writea-app.vercel.app"
 	},
 	"d1_databases": [
 		{
