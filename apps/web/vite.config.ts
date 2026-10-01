@@ -8,6 +8,9 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(import.meta.dirname, "src") },
   },
+  build: {
+    chunkSizeWarningLimit: 700,
+  },
   server: {
     port: 5173,
     proxy: {

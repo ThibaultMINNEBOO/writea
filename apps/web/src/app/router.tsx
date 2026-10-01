@@ -1,24 +1,46 @@
 import { createBrowserRouter } from "react-router";
 import { RouteError } from "@/components/route-error";
-import { AuthPage } from "@/features/auth/auth-page";
 import { RequireAuth } from "@/features/auth/require-auth";
-import { LibraryPage } from "@/features/library/library-page";
-import { ReviewPage } from "@/features/review/review-page";
-import { WorkspacePage } from "@/features/workspace/workspace-page";
+
+const workspace = async () => ({
+  Component: (await import("@/features/workspace/workspace-page")).WorkspacePage,
+});
 
 export const router = createBrowserRouter([
   {
     errorElement: <RouteError />,
     children: [
-      { path: "/connexion", element: <AuthPage mode="signin" /> },
-      { path: "/inscription", element: <AuthPage mode="signup" /> },
-      { path: "/relecture/:token", element: <ReviewPage /> },
+      {
+        path: "/connexion",
+        lazy: async () => {
+          const { AuthPage } = await import("@/features/auth/auth-page");
+          return { element: <AuthPage mode="signin" /> };
+        },
+      },
+      {
+        path: "/inscription",
+        lazy: async () => {
+          const { AuthPage } = await import("@/features/auth/auth-page");
+          return { element: <AuthPage mode="signup" /> };
+        },
+      },
+      {
+        path: "/relecture/:token",
+        lazy: async () => ({
+          Component: (await import("@/features/review/review-page")).ReviewPage,
+        }),
+      },
       {
         element: <RequireAuth />,
         children: [
-          { path: "/", element: <LibraryPage /> },
-          { path: "/oeuvres/:workId", element: <WorkspacePage /> },
-          { path: "/oeuvres/:workId/chapitres/:chapterId", element: <WorkspacePage /> },
+          {
+            path: "/",
+            lazy: async () => ({
+              Component: (await import("@/features/library/library-page")).LibraryPage,
+            }),
+          },
+          { path: "/oeuvres/:workId", lazy: workspace },
+          { path: "/oeuvres/:workId/chapitres/:chapterId", lazy: workspace },
         ],
       },
     ],
