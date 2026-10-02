@@ -27,7 +27,10 @@ export const chapterUpdate = z.object({
 });
 export const chapterOrder = z.object({ chapterIds: z.array(z.string().min(1)).min(1) });
 
-export const versionCreate = z.object({ label: z.string().trim().min(1).max(120) });
+export const versionCreate = z.object({
+  label: z.string().trim().min(1).max(120),
+  content: z.string().max(500_000).optional(),
+});
 
 export const commentCreate = z
   .object({

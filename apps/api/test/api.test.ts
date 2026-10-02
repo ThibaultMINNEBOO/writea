@@ -130,6 +130,36 @@ describe("API Writea", () => {
     ]);
   });
 
+  it("fige une version à partir d'un texte fourni sans toucher au chapitre", async () => {
+    const session = await signUp("autrice-6@exemple.fr");
+    const work = await createWork(session);
+    const chapterId = work.chapters[0]?.id ?? "";
+    await call(`/api/chapters/${chapterId}`, {
+      method: "PATCH",
+      session,
+      json: { content: "Texte du serveur." },
+    });
+
+    const created = await call(`/api/chapters/${chapterId}/versions`, {
+      method: "POST",
+      session,
+      json: {
+        label: "Brouillon non synchronisé de cet appareil",
+        content: "Brouillon local en trois mots.",
+      },
+    });
+    expect(created.status).toBe(201);
+
+    const versions = await body<{ label: string; wordCount: number }[]>(
+      await call(`/api/chapters/${chapterId}/versions`, { session }),
+    );
+    expect(versions).toMatchObject([
+      { label: "Brouillon non synchronisé de cet appareil", wordCount: 5 },
+    ]);
+    const chapter = await body<Chapter>(await call(`/api/chapters/${chapterId}`, { session }));
+    expect(chapter.content).toBe("Texte du serveur.");
+  });
+
   it("exporte l'œuvre au format EPUB", async () => {
     const session = await signUp("autrice-4@exemple.fr");
     const work = await createWork(session);

@@ -1,4 +1,5 @@
 import { versionCreate } from "@writea/shared/schemas";
+import { countWords } from "@writea/shared/text";
 import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { chapters, chapterVersions, reviewComments, shareLinks } from "../db/schema";
@@ -46,14 +47,15 @@ export const chapterVersionsRoutes = new Hono<AuthedEnv>()
   })
   .post("/:id/versions", validate("json", versionCreate), async (c) => {
     const chapter = await findOwnedChapter(c.var.db, c.var.user.id, c.req.param("id"));
+    const { label, content } = c.req.valid("json");
     const [version] = await c.var.db
       .insert(chapterVersions)
       .values({
         chapterId: chapter.id,
-        label: c.req.valid("json").label,
+        label,
         title: chapter.title,
-        content: chapter.content,
-        wordCount: chapter.wordCount,
+        content: content ?? chapter.content,
+        wordCount: content === undefined ? chapter.wordCount : countWords(content),
       })
       .returning({ id: chapterVersions.id });
     return c.json(version, 201);

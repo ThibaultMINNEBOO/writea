@@ -14,11 +14,15 @@ export const useWork = (id: string) =>
     queryFn: () => unwrap(api.works[":id"].$get({ param: { id } })),
   });
 
+export const fetchChapter = (id: string) => unwrap(api.chapters[":id"].$get({ param: { id } }));
+
+/** The cached copy is only a fallback: opening a chapter always asks the server first. */
 export const useChapter = (id: string) =>
   useQuery({
     queryKey: chapterKeys.detail(id),
-    queryFn: () => unwrap(api.chapters[":id"].$get({ param: { id } })),
-    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: () => fetchChapter(id),
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
 // Browsers cap keepalive request bodies at 64 KB; larger saves must not use it.
